@@ -1,6 +1,6 @@
 # CStyleCheck
 
-![Logo](https://github.com/dermot-murphy/CStyleCheck/blob/main/Logo/cnamechecker.png)
+![Logo](https://github.com/dermot-murphy/CStyleCheck/blob/main/Logo/cstylecheck.png)
 
 Embedded C naming-convention linter for GitHub Actions / pre-commit hooks.
 Implements **Barr-C:2018** and MISRA-C complementary rules across **50 rule IDs**.
