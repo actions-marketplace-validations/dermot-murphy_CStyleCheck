@@ -1,6 +1,6 @@
 # CStyleCheck
 
-![Logo](https://github.com/dermot-murphy/CStyleCheck/blob/main/logo/cstylecheck.png)
+![Logo](logo/cstylecheck.jpg)
 
 Embedded C Style Compliance Checker for GitHub Actions / pre-commit hooks.
 Implements **Barr-C:2018** and MISRA-C complementary rules across **50 rule IDs**.
