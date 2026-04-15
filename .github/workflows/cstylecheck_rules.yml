@@ -21,7 +21,7 @@
 # to make the trend page publicly accessible.
 # =============================================================================
 
-name: Naming Convention
+name: CStyleCheck
 
 on:
   push:
