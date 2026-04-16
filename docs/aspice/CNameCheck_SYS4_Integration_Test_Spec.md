@@ -264,21 +264,21 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 ---
 
-### SITC-009 — cstylecheck_exclusions File Integration (SS-02 → SS-05)
+### SITC-009 — exclusions File Integration (SS-02 → SS-05)
 
 | Field | Value |
 |---|---|
 | **Test Case ID** | SITC-009 |
-| **Test Objective** | Verify that per-file rule suppressions defined in `cstylecheck_exclusions.yml` are applied correctly by the rule engine |
+| **Test Objective** | Verify that per-file rule suppressions defined in `exclusions.yml` are applied correctly by the rule engine |
 | **Architecture Interface** | IF-04, IF-08 |
 | **Requirement Reference** | SYS-F-008, SYS-NF-009 |
-| **Pre-conditions** | `cstylecheck_exclusions.yml` suppressing a specific rule for a specific file; source file violating that rule |
+| **Pre-conditions** | `exclusions.yml` suppressing a specific rule for a specific file; source file violating that rule |
 | **Test Method** | Dynamic execution |
 
 | Step | Action | Input | Expected Result |
 |---|---|---|---|
-| 1 | Invoke with `--cstylecheck_exclusions cstylecheck_exclusions.yml` on file that violates an excluded rule | Both file and cstylecheck_exclusions | Excluded violation NOT reported |
-| 2 | Invoke without `--cstylecheck_exclusions` on same file | Same source only | Violation IS reported |
+| 1 | Invoke with `--exclusions exclusions.yml` on file that violates an excluded rule | Both file and exclusions | Excluded violation NOT reported |
+| 2 | Invoke without `--exclusions` on same file | Same source only | Violation IS reported |
 | 3 | Verify other rules still enforced | Same file with additional unexcluded violation | Unexcluded violation reported |
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
@@ -416,7 +416,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 | SITC-006 | Log file output | \<PASS / FAIL / N/A\> | |
 | SITC-007 | Baseline suppression round-trip | \<PASS / FAIL / N/A\> | |
 | SITC-008 | Cross-file sign compatibility | \<PASS / FAIL / N/A\> | |
-| SITC-009 | cstylecheck_exclusions file integration | \<PASS / FAIL / N/A\> | |
+| SITC-009 | exclusions file integration | \<PASS / FAIL / N/A\> | |
 | SITC-010 | Exit code matrix | \<PASS / FAIL / N/A\> | |
 | SITC-011 | Docker container integration | \<PASS / FAIL / N/A\> | |
 | SITC-012 | pip install integration | \<PASS / FAIL / N/A\> | |

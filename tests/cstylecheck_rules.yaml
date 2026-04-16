@@ -322,7 +322,7 @@ functions:
   # object_verb style check to be waived entirely.  Use this for
   # established abbreviations that act as both object and verb.
   # e.g.  APP_Cmd_Wr_Mode  passes because Wr is in this list.
-  object_cstylecheck_exclusions:
+  object_exclusions:
     - Wr
     - Rd
     - IoCntrl
@@ -426,7 +426,7 @@ misc:
   #
   # This rule is only active when --copyright is provided; the 'enabled'
   # flag lets you disable it even when the file is present (e.g. in a
-  # per-file exclusion via --cstylecheck_exclusions).
+  # per-file exclusion via --exclusions).
   copyright_header:
     enabled: true           # active whenever --copyright FILE is supplied
     severity: error
@@ -462,7 +462,7 @@ misc:
 # Checks that no declared variable, function, macro, or constant name
 # shadows a C keyword, C++ keyword, or C standard library name.
 # Additional names can be banned via --banned-names FILE on the command line.
-# Per-file exceptions: add 'reserved_name' to disabled_rules in cstylecheck_exclusions.yml.
+# Per-file exceptions: add 'reserved_name' to disabled_rules in exclusions.yml.
 reserved_names:
   enabled: true
   severity: error

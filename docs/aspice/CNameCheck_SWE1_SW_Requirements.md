@@ -54,7 +54,7 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 | `module_name` | The filename stem (e.g. `uart` from `uart.c`) used as the mandatory identifier prefix |
 | `clean` | Source text after stripping comments and string literals |
 | `defines` | Keyword/type alias substitutions applied to source before analysis |
-| `cstylecheck_exclusions` | Per-file YAML map of rule IDs to suppressed identifier patterns |
+| `exclusions` | Per-file YAML map of rule IDs to suppressed identifier patterns |
 | `baseline` | JSON file of known violations used to suppress pre-existing findings |
 
 ---
@@ -69,7 +69,7 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 | SWE1-002 | The software shall raise a configuration error (exit code 2) if the YAML file is absent, malformed, or unparseable | Mandatory | Test | SYS-F-039 |
 | SWE1-003 | The software shall apply project `--defines` substitutions to the preprocessed source text before any rule check, using the `apply_defines()` function | Mandatory | Test | SYS-F-006 |
 | SWE1-004 | The software shall load the module alias map via `load_alias_file()` and use it to derive accepted prefix strings per source file | Mandatory | Test | SYS-F-007 |
-| SWE1-005 | The software shall load per-file rule cstylecheck_exclusions via `load_cstylecheck_exclusions_file()` and pass the resulting map to each `Checker` instance | Mandatory | Test | SYS-F-008 |
+| SWE1-005 | The software shall load per-file rule exclusions via `load_exclusions_file()` and pass the resulting map to each `Checker` instance | Mandatory | Test | SYS-F-008 |
 | SWE1-006 | The software shall resolve the set of disabled rules for each source file via `_disabled_rules_for_file()` before instantiating the `Checker` | Mandatory | Test | SYS-F-008 |
 
 ### 4.2 Dictionary Management (SS-03)

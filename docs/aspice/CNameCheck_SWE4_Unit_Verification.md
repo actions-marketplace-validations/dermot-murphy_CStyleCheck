@@ -265,7 +265,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.13 Bug-Fix and Improvement Tests — `test_improvements.py` (63), `test_barr_c.py` (42), `test_eof_comment.py`, `test_copyright_header.py`, `test_parameter_prefix.py`, `test_cstylecheck_exclusions.py`
+### 5.13 Bug-Fix and Improvement Tests — `test_improvements.py` (63), `test_barr_c.py` (42), `test_eof_comment.py`, `test_copyright_header.py`, `test_parameter_prefix.py`, `test_exclusions.py`
 
 These test modules provide regression coverage for previously fixed bugs and new rules. Key cases:
 
@@ -303,7 +303,7 @@ These test modules provide regression coverage for previously fixed bugs and new
 | `test_improvements.py` | 63 | \<N\> | \<N\> | Multiple |
 | `test_barr_c.py` | 42 | \<N\> | \<N\> | Multiple |
 | `test_cli.py` | 29 | \<N\> | \<N\> | COMP-01, COMP-07 |
-| `test_cstylecheck_exclusions.py` | \<N\> | \<N\> | \<N\> | COMP-02 |
+| `test_exclusions.py` | \<N\> | \<N\> | \<N\> | COMP-02 |
 | `test_eof_comment.py` | \<N\> | \<N\> | \<N\> | `_check_eof_comment` |
 | `test_copyright_header.py` | \<N\> | \<N\> | \<N\> | `_check_copyright_header` |
 | `test_parameter_prefix.py` | \<N\> | \<N\> | \<N\> | `_check_variables` |

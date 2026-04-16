@@ -16,7 +16,7 @@ Usage
     --options-file FILE    Read options from FILE (one per line, # = comment)
     --defines FILE         Project macro/type substitution file
     --aliases FILE         Module alias prefix file
-    --cstylecheck_exclusions FILE      Per-file rule exclusion YAML
+    --exclusions FILE      Per-file rule exclusion YAML
     --include GLOB         Glob pattern to scan (repeatable)
     --exclude GLOB         Glob pattern to exclude (repeatable)
     --output-format FORMAT Output format: text (default), json, or sarif
@@ -81,7 +81,7 @@ Checks performed (driven by cstylecheck_rules.yaml)
   Reserved names (BARR-C 6.1.a / 7.1.a-b)
     - No identifier may shadow a C/C++ keyword or C standard library name.
     - Extended via --banned-names FILE for project-specific banned names.
-    - Per-file exceptions via --cstylecheck_exclusions (disable rule 'reserved_name').
+    - Per-file exceptions via --exclusions (disable rule 'reserved_name').
 
   Miscellaneous
     - Magic numbers flagged; #define RHS, array indices, return values exempt.
@@ -308,10 +308,10 @@ def load_alias_file(path: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Per-file rule cstylecheck_exclusions loader  (--cstylecheck_exclusions)
+# Per-file rule exclusions loader  (--exclusions)
 # ---------------------------------------------------------------------------
 
-def load_cstylecheck_exclusions_file(path: str) -> dict:
+def load_exclusions_file(path: str) -> dict:
     """
     Load the per-file rule exclusion YAML.
 
@@ -337,7 +337,7 @@ def load_cstylecheck_exclusions_file(path: str) -> dict:
         data = yaml.safe_load(
             Path(path).read_text(encoding="utf-8", errors="replace"))
     except OSError as e:
-        sys.exit(f"Cannot read cstylecheck_exclusions file '{path}': {e}")
+        sys.exit(f"Cannot read exclusions file '{path}': {e}")
     if not isinstance(data, dict):
         return {}
     result: dict = {}
@@ -346,7 +346,7 @@ def load_cstylecheck_exclusions_file(path: str) -> dict:
             continue
         rules = body.get("disabled_rules", [])
         file_rules = frozenset(str(r) for r in rules) if isinstance(rules, list) else frozenset()
-        # Per-identifier cstylecheck_exclusions
+        # Per-identifier exclusions
         ident_rules: dict = {}
         for ident, ibody in (body.get("identifiers") or {}).items():
             if isinstance(ibody, dict):
@@ -360,7 +360,7 @@ def load_cstylecheck_exclusions_file(path: str) -> dict:
     return result
 
 
-def _disabled_rules_for_file(filepath: str, cstylecheck_exclusions: dict) -> tuple:
+def _disabled_rules_for_file(filepath: str, exclusions: dict) -> tuple:
     """
     Return (file_disabled, ident_disabled) where:
       file_disabled  frozenset of rule IDs disabled for the whole file.
@@ -369,7 +369,7 @@ def _disabled_rules_for_file(filepath: str, cstylecheck_exclusions: dict) -> tup
     basename = Path(filepath).name
     file_disabled: set = set()
     ident_disabled: dict = {}
-    for pattern, body in cstylecheck_exclusions.items():
+    for pattern, body in exclusions.items():
         if not fnmatch.fnmatch(basename, pattern):
             continue
         if isinstance(body, frozenset):
@@ -1527,13 +1527,13 @@ class Checker:
     # Helper: check whether a function body string satisfies object_verb.
     # Extracted so verb_object can reuse the same logic.
     @staticmethod
-    def _body_is_object_verb(body: str, cstylecheck_exclusions: set, abbrevs: set) -> bool:
+    def _body_is_object_verb(body: str, exclusions: set, abbrevs: set) -> bool:
         """
         Return True when *body* (text after the module prefix) satisfies the
         object_verb (or verb_object) convention:
 
           * If any underscore-delimited segment of *body* appears in
-            *cstylecheck_exclusions*, the rule is waived entirely.
+            *exclusions*, the rule is waived entirely.
           * Otherwise every segment must be PascalCase or an entry in
             *abbrevs*.  A single segment (verb only, no explicit object)
             is also accepted.
@@ -1542,14 +1542,14 @@ class Checker:
           BufferRead          — classic ObjectVerb
           Init                — single verb, no object required
           LiveDataRead_X_Start — multi-segment; last = verb, rest = object
-          Wr_Mode_Transit     — Wr is in cstylecheck_exclusions → waived
+          Wr_Mode_Transit     — Wr is in exclusions → waived
         """
         segments = [s for s in body.split("_") if s]
         if not segments:
             return False
         # Rule 1: exclusion list waives the entire check
         for seg in segments:
-            if seg in cstylecheck_exclusions or seg.upper() in {e.upper() for e in cstylecheck_exclusions}:
+            if seg in exclusions or seg.upper() in {e.upper() for e in exclusions}:
                 return True
         # Rule 2: every segment must be PascalCase or a known abbreviation
         for seg in segments:
@@ -1566,7 +1566,7 @@ class Checker:
         sev        = fn_cfg.get("severity", "error")
         style      = fn_cfg.get("style", "object_verb")
         isr_cfg    = fn_cfg.get("isr_suffix", {})
-        cstylecheck_exclusions = set(fn_cfg.get("object_cstylecheck_exclusions", []))
+        exclusions = set(fn_cfg.get("object_exclusions", []))
         abbrevs    = set(fn_cfg.get("allowed_abbreviations", []))
         sp_cfg     = fn_cfg.get("static_prefix", {})
 
@@ -1634,7 +1634,7 @@ class Checker:
             body = name[len(pfx):]
 
             if style in ("object_verb", "verb_object"):
-                if not self._body_is_object_verb(body, cstylecheck_exclusions, abbrevs):
+                if not self._body_is_object_verb(body, exclusions, abbrevs):
                     self._v(m.start(), sev, "function.style",
                             f"Function '{name}' body '{body}' should be "
                             f"ObjectVerb segments separated by '_' "
@@ -2351,7 +2351,7 @@ class Checker:
         library name, or a project-banned name (from --banned-names FILE).
 
         Checks all scopes: variables, function definitions, and macro/constant
-        names.  Per-file exceptions are handled via --cstylecheck_exclusions by adding
+        names.  Per-file exceptions are handled via --exclusions by adding
         'reserved_name' to the disabled_rules list for that file pattern.
         """
         rn_cfg = self.cfg.get("reserved_names", {})
@@ -3152,8 +3152,8 @@ def _build_parser() -> argparse.ArgumentParser:
                         "module names.  Each line: 'alias_stem  actual_stem'. "
                         "Identifiers with the alias prefix are then accepted in "
                         "files whose stem is actual_stem.")
-    p.add_argument("--cstylecheck_exclusions", metavar="FILE",
-                   help="YAML file specifying per-file rule cstylecheck_exclusions.  Keys are "
+    p.add_argument("--exclusions", metavar="FILE",
+                   help="YAML file specifying per-file rule exclusions.  Keys are "
                         "fnmatch patterns matched against the file basename; values "
                         "list rule IDs to disable for that file.")
     p.add_argument("--warnings-as-errors", action="store_true",
@@ -3177,7 +3177,7 @@ def _build_parser() -> argparse.ArgumentParser:
                         "must not be used in any source file (one name per "
                         "line, # = comment). Added to the built-in C keyword "
                         "and C stdlib name lists. Per-file exceptions are "
-                        "handled via --cstylecheck_exclusions (disable reserved_name rule).")
+                        "handled via --exclusions (disable reserved_name rule).")
     p.add_argument("--copyright", metavar="FILE",
                    help="Plain-text file containing the copyright block "
                         "comment template that must appear at the top of "
@@ -3264,9 +3264,9 @@ def main() -> int:
     # Module alias map: {actual_stem_lower: [alias_stem_lower, ...]}
     alias_map: dict = load_alias_file(args.aliases) if args.aliases else {}
 
-    # Per-file rule cstylecheck_exclusions: {basename_glob: frozenset_of_rule_ids}
-    cstylecheck_exclusions_map: dict = (
-        load_cstylecheck_exclusions_file(args.cstylecheck_exclusions) if args.cstylecheck_exclusions else {}
+    # Per-file rule exclusions: {basename_glob: frozenset_of_rule_ids}
+    exclusions_map: dict = (
+        load_exclusions_file(args.exclusions) if args.exclusions else {}
     )
 
     # Open optional log file
@@ -3337,7 +3337,7 @@ def main() -> int:
         ]
 
         # Collect disabled rules for this specific file
-        _file_disabled, _ident_disabled = _disabled_rules_for_file(filepath, cstylecheck_exclusions_map)
+        _file_disabled, _ident_disabled = _disabled_rules_for_file(filepath, exclusions_map)
 
         checker = Checker(
             filepath, source, cfg,

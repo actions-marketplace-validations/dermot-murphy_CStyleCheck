@@ -82,7 +82,7 @@ jobs:
           python src/cstylecheck.py          \
             --config     src/cstylecheck_rules.yaml \
             --aliases    src/cstylecheck_aliases.txt            \
-            --cstylecheck_exclusions src/cstylecheck_exclusions.yml         \
+            --exclusions src/exclusions.yml         \
             --github-actions                                   \
             --summary                                          \
             --log        output/cstylecheck/cstylecheck_results.txt \
@@ -98,7 +98,7 @@ jobs:
           python src/cstylecheck.py          \
             --config     src/cstylecheck_rules.yaml \
             --aliases    src/cstylecheck_aliases.txt            \
-            --cstylecheck_exclusions src/cstylecheck_exclusions.yml         \
+            --exclusions src/exclusions.yml         \
             --github-actions                                   \
             --summary                                          \
             --log        output/cstylecheck/cstylecheck_results.txt \
