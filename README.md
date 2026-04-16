@@ -27,7 +27,7 @@ src/
     cstylecheck.options        # project defaults for --options-file
     project.defines          # keyword/type aliases for --defines
     cstylecheck_aliases.txt              # module alias map for --aliases
-    cstylecheck_exclusions.yml           # per-file rule suppressions
+    exclusions.yml           # per-file rule suppressions
     copyright_header.txt     # copyright block comment template (--copyright)
     c_keywords.txt           # C/C++ keyword list      (--keywords-file)
     c_stdlib_names.txt       # C stdlib name list      (--stdlib-file)
@@ -114,7 +114,7 @@ pytest tests/ --cov=src --cov-report=term-missing
 | `--spell-dict FILE` | Replace built-in spell-check dictionary (`src/c_spell_dict.txt`) |
 | `--defines FILE` | Project keyword/type aliases |
 | `--aliases FILE` | Module alias map |
-| `--cstylecheck_exclusions FILE` | Per-file rule suppression YAML |
+| `--exclusions FILE` | Per-file rule suppression YAML |
 | `--banned-names FILE` | Extra banned identifier names |
 | `--spell-words FILE` | Extra spell-check exempt words |
 | `--include GLOB` | Source glob to scan (repeatable) |
@@ -409,8 +409,8 @@ hooks:
       - tools/cstylecheck/cstylecheck_rules.yaml
       - --aliases
       - tools/cstylecheck/cstylecheck_aliases.txt
-      - --cstylecheck_exclusions
-      - tools/cstylecheck/cstylecheck_exclusions.yml
+      - --exclusions
+      - tools/cstylecheck/exclusions.yml
       - --defines
       - tools/cstylecheck/project.defines
       - --copyright
@@ -505,7 +505,7 @@ jobs:
           exclude: |
             source/cots/
           aliases:    src/cstylecheck_aliases.txt
-          cstylecheck_exclusions: src/cstylecheck_exclusions.yml
+          exclusions: src/exclusions.yml
           defines:    src/project.defines
           copyright:  src/copyright_header.txt
           fail-on:    error
@@ -535,7 +535,7 @@ jobs:
 | `options-file` | Options file path (`--options-file`) | — |
 | `defines` | Project defines file (`--defines`) | — |
 | `aliases` | Module alias map (`--aliases`) | — |
-| `cstylecheck_exclusions` | Per-file rule exclusion YAML (`--cstylecheck_exclusions`) | — |
+| `exclusions` | Per-file rule exclusion YAML (`--exclusions`) | — |
 | `copyright` | Copyright block comment template (`--copyright`) | — |
 | `baseline-file` | Baseline JSON to suppress known violations | — |
 | `warnings-as-errors` | Promote warnings to errors | `false` |

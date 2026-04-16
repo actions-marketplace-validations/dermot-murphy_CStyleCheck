@@ -200,7 +200,7 @@ This Risk Management Plan defines the risk identification, analysis, treatment, 
 | **Impact** | 2 (Minor) — user confusion; support burden |
 | **RPN** | 6 (Medium) |
 | **Treatment Option** | Mitigate |
-| **Treatment Activities** | Each rule documented in README with rationale and Barr-C section reference; all rules configurable (enable/disable/severity); `cstylecheck_exclusions.yml` allows per-file suppression |
+| **Treatment Activities** | Each rule documented in README with rationale and Barr-C section reference; all rules configurable (enable/disable/severity); `exclusions.yml` allows per-file suppression |
 | **Residual Likelihood** | 2 |
 | **Residual Impact** | 1 |
 | **Residual RPN** | 2 (Low) |

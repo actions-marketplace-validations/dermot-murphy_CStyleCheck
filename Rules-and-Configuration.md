@@ -582,7 +582,7 @@ functions:
     - FIFO
     - ADC
     - UART
-  object_cstylecheck_exclusions:
+  object_exclusions:
     - Init               # segments that waive the style check entirely
     - Wr
     - Rd
@@ -597,7 +597,7 @@ prefix):
 | `verb_object` | `uart_driver_ReadBuffer` |
 | `lower_snake` | `uart_driver_buffer_read` |
 
-`object_cstylecheck_exclusions` lists body segments that disable the style check entirely —
+`object_exclusions` lists body segments that disable the style check entirely —
 useful for established abbreviations that act as both object and verb.
 
 ```c
@@ -606,7 +606,7 @@ useful for established abbreviations that act as both object and verb.
 /* ✓ PASS */
 void uart_driver_BufferRead(void);
 void uart_driver_StatusGet(void);
-void uart_driver_Init(void);          /* Init in object_cstylecheck_exclusions — waived */
+void uart_driver_Init(void);          /* Init in object_exclusions — waived */
 
 /* ✗ FAIL */
 void uart_driver_readBuffer(void);    /* function.style — verb first, lower-case */

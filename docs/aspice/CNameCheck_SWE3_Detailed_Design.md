@@ -48,7 +48,7 @@ This document defines the detailed design of each software unit in **CStyleCheck
 | UNIT-04 | `_path_matches_exclude` | `cstylecheck.py:2744` | COMP-01 |
 | UNIT-05 | `load_config` | `cstylecheck.py:250` | COMP-02 |
 | UNIT-06 | `load_alias_file` | `cstylecheck.py:275` | COMP-02 |
-| UNIT-07 | `load_cstylecheck_exclusions_file` | `cstylecheck.py:314` | COMP-02 |
+| UNIT-07 | `load_exclusions_file` | `cstylecheck.py:314` | COMP-02 |
 | UNIT-08 | `_disabled_rules_for_file` | `cstylecheck.py:363` | COMP-02 |
 | UNIT-09 | `load_defines_file` | `cstylecheck.py:392` | COMP-02 |
 | UNIT-10 | `apply_defines` | `cstylecheck.py:441` | COMP-02 |
@@ -125,7 +125,7 @@ This document defines the detailed design of each software unit in **CStyleCheck
 
 ### UNIT-03 — `discover_files(includes, excludes) → list[str]`
 
-**Purpose:** Expand glob patterns into a de-duplicated, sorted list of source file paths, applying cstylecheck_exclusions.
+**Purpose:** Expand glob patterns into a de-duplicated, sorted list of source file paths, applying exclusions.
 
 **Algorithm:**
 1. For each include glob: call `glob_mod.glob(pattern, recursive=True)` → file list
@@ -389,7 +389,7 @@ Violation:
 | SWE1-001 to SWE1-002 | Config loading | UNIT-05 |
 | SWE1-003 | Defines substitution | UNIT-09, UNIT-10 |
 | SWE1-004 | Alias file | UNIT-06 |
-| SWE1-005 to SWE1-006 | cstylecheck_exclusions | UNIT-07, UNIT-08 |
+| SWE1-005 to SWE1-006 | exclusions | UNIT-07, UNIT-08 |
 | SWE1-007 to SWE1-010 | Dictionary management | UNIT-11, UNIT-12, UNIT-13 |
 | SWE1-011 to SWE1-016 | Source parsing | UNIT-14, UNIT-15, UNIT-16, UNIT-17, UNIT-18, UNIT-19, UNIT-20 |
 | SWE1-017 to SWE1-029 | Variable rules | UNIT-23, UNIT-43, UNIT-44, UNIT-45 |

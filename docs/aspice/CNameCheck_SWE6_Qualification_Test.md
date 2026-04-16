@@ -83,7 +83,7 @@ Qualification tests (SWE.6) differ from integration tests (SWE.5) in that they v
 | 3 | Run with missing YAML | `--config nonexistent.yaml` | Exit 2; error message to stderr |
 | 4 | Run with `--defines project.defines` | Valid defines file | Tool runs; defines applied (verify via known substitution) |
 | 5 | Run with `--aliases cstylecheck_aliases.txt` | Valid aliases file | Tool runs; alias prefixes accepted |
-| 6 | Run with `--cstylecheck_exclusions cstylecheck_exclusions.yml` | Valid cstylecheck_exclusions | Tool runs; excluded rules suppressed for specified files |
+| 6 | Run with `--exclusions exclusions.yml` | Valid exclusions | Tool runs; excluded rules suppressed for specified files |
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|

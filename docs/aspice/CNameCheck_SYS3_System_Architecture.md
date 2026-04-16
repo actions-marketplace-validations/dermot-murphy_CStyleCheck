@@ -61,7 +61,7 @@ CStyleCheck is a software-only system with no hardware dependencies. It is deplo
 │                   CStyleCheck System                  │
 │                                                     │
 │   Inputs:  .c / .h files, cstylecheck_rules.yaml,   │
-│            options, dictionaries, cstylecheck_exclusions         │
+│            options, dictionaries, exclusions         │
 │                                                     │
 │   Outputs: violations (text/JSON/SARIF), exit code, │
 │            log file, GitHub annotations, baseline   │
@@ -82,7 +82,7 @@ CStyleCheck is decomposed into six functional subsystems, all implemented within
 | SS-02 | Configuration Loader | Load and validate `cstylecheck_rules.yaml`; merge project defines and aliases | `cstylecheck.py`, `cstylecheck_rules.yaml`, `cstylecheck_aliases.txt`, `project.defines` |
 | SS-03 | Dictionary Manager | Load keyword, stdlib, and spell-check dictionaries; support runtime override | `c_keywords.txt`, `c_stdlib_names.txt`, `c_spell_dict.txt` |
 | SS-04 | Source Parser & Cache | Read each source file once; tokenise identifiers, extract scoped declarations; cache content for cross-file checks | `cstylecheck.py` |
-| SS-05 | Rule Engine | Evaluate all enabled rules against each identifier; classify violations by severity; apply cstylecheck_exclusions and baselines | `cstylecheck.py`, `cstylecheck_exclusions.yml` |
+| SS-05 | Rule Engine | Evaluate all enabled rules against each identifier; classify violations by severity; apply exclusions and baselines | `cstylecheck.py`, `exclusions.yml` |
 | SS-06 | Output Formatter | Render violation results as plain text, JSON, or SARIF; emit GitHub annotations; write log file; print summary | `cstylecheck.py` |
 
 ### 5.2 Subsystem Interface Summary
@@ -122,7 +122,7 @@ CStyleCheck is decomposed into six functional subsystems, all implemented within
   _version.py            ← version string (CI-002)
   cstylecheck_rules.yaml ← default rule config (CI-003)
   cstylecheck.options     ← default options (CI-004)
-  cstylecheck_exclusions.yml         ← default cstylecheck_exclusions (CI-005)
+  exclusions.yml         ← default exclusions (CI-005)
   project.defines        ← default defines (CI-006)
   cstylecheck_aliases.txt            ← default aliases (CI-007)
   c_keywords.txt         ← C keyword dictionary (CI-008)
@@ -165,7 +165,7 @@ User source files are mounted at runtime (e.g., `-v $(pwd):/repo`). All dictiona
    │
    ├─ SS-05: run_rules()  [for each identifier token]
    │   ├─ Apply all enabled rules from config_object
-   │   ├─ Apply --cstylecheck_exclusions per-file suppressions
+   │   ├─ Apply --exclusions per-file suppressions
    │   ├─ Apply --baseline-file suppression (if specified)
    │   └─ Collect Violation objects → [violations]
    │

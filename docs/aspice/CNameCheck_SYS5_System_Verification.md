@@ -392,7 +392,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 | SYS-F-005 | `--exclude` glob patterns | SYS-VTC-001 | \<Covered\> |
 | SYS-F-006 | `--defines` file | \<SYS-VTC-xxx\> | \<TBD\> |
 | SYS-F-007 | `--aliases` file | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-008 | `--cstylecheck_exclusions` file | SITC-009 | \<Covered\> |
+| SYS-F-008 | `--exclusions` file | SITC-009 | \<Covered\> |
 | SYS-F-009 | Dictionary override flags | \<SYS-VTC-xxx\> | \<TBD\> |
 | SYS-F-010 | Single file read per invocation | SYS-VTC-003 (via cache), SITC-008 | \<Covered\> |
 | SYS-F-011 to F-024 | All 48 rule IDs | SYS-VTC-003, VTC-004, VTC-005 | \<Covered\> |
@@ -420,7 +420,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 | SYS-NF-006 | Multi-platform Docker | SYS-VTC-012 | \<Covered\> |
 | SYS-NF-007 | YAML configuration | SYS-VTC-002 | \<Covered\> |
 | SYS-NF-008 | Options file precedence | SITC-003 | \<Covered\> |
-| SYS-NF-009 | Per-file cstylecheck_exclusions | SITC-009 | \<Covered\> |
+| SYS-NF-009 | Per-file exclusions | SITC-009 | \<Covered\> |
 | SYS-NF-010 | pre-commit integration | \<SYS-VTC-xxx\> | \<TBD\> |
 | SYS-NF-011 | GitHub Action `action.yml` | \<SYS-VTC-xxx\> | \<TBD\> |
 | SYS-NF-012 | GitHub Action step outputs | \<SYS-VTC-xxx\> | \<TBD\> |

@@ -27,7 +27,7 @@
 
 # --- Project-specific support files ---
 --aliases    src/cstylecheck_aliases.txt
---cstylecheck_exclusions src/cstylecheck_exclusions.yml
+--exclusions src/exclusions.yml
 --defines    src/project.defines
 # --copyright  src/copyright_header.txt   # uncomment to enforce copyright header rule
 

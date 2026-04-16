@@ -113,7 +113,7 @@ All items in the following table are placed under configuration control.
 | CI-002 | Version file | `src/_version.py` | Generated / version |
 | CI-003 | Production naming convention config | `src/cstylecheck_rules.yaml` | Configuration |
 | CI-004 | CLI options defaults file | `src/cstylecheck.options` | Configuration |
-| CI-005 | cstylecheck_exclusions configuration | `src/cstylecheck_exclusions.yml` | Configuration |
+| CI-005 | exclusions configuration | `src/exclusions.yml` | Configuration |
 | CI-006 | Project preprocessor defines | `src/project.defines` | Configuration |
 | CI-007 | Module alias map | `src/cstylecheck_aliases.txt` | Configuration |
 | CI-008 | C keyword dictionary | `src/c_keywords.txt` | Data file |

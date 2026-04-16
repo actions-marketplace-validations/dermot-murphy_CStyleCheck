@@ -49,7 +49,7 @@ A **change request (CR)** covers any planned modification to a baselined work pr
 | **Enhancement** | `enhancement` | New rule, new output format, new CLI flag, new integration |
 | **Improvement** | `improvement` | Optimisation, UX improvement, performance improvement |
 | **Documentation** | `documentation` | Update to ASPICE documents, README, or in-code documentation |
-| **Configuration** | `config-change` | Update to `cstylecheck_rules.yaml`, `cstylecheck_exclusions.yml`, or dictionary files |
+| **Configuration** | `config-change` | Update to `cstylecheck_rules.yaml`, `exclusions.yml`, or dictionary files |
 | **Process** | `process-change` | Update to CI workflows, Git Flow procedure, or QA activities |
 
 ### 4.2 Impact Levels

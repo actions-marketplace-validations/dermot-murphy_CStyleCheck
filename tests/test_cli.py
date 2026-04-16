@@ -1,7 +1,7 @@
 """test_cli.py — end-to-end CLI tests using subprocess.
 
 Covers: --version, --help, --warnings-as-errors, --options-file, --defines,
---banned-names, --cstylecheck_exclusions, --summary, --log.
+--banned-names, --exclusions, --summary, --log.
 """
 import sys, os, subprocess, tempfile, textwrap, unittest
 from pathlib import Path
@@ -186,10 +186,10 @@ class TestBannedNamesFile(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-class Testcstylecheck_exclusions(unittest.TestCase):
+class Testexclusions(unittest.TestCase):
     def test_disabled_rule_suppressed_for_matching_file(self):
         with tempfile.TemporaryDirectory() as td:
-            excl = _write(td, "cstylecheck_exclusions.yml", textwrap.dedent("""\
+            excl = _write(td, "exclusions.yml", textwrap.dedent("""\
                 "legacy_mod.*":
                   disabled_rules:
                     - reserved_name
@@ -198,12 +198,12 @@ class Testcstylecheck_exclusions(unittest.TestCase):
                          "void legacy_mod_DoWork(void){\n"
                          "    int strlen = 0; (void)strlen;\n"
                          "}\n")
-            _, out = _run("--cstylecheck_exclusions", str(excl), files=[src])
+            _, out = _run("--exclusions", str(excl), files=[src])
         self.assertNotIn("reserved_name", out)
 
     def test_non_matching_file_still_receives_violations(self):
         with tempfile.TemporaryDirectory() as td:
-            excl = _write(td, "cstylecheck_exclusions.yml", textwrap.dedent("""\
+            excl = _write(td, "exclusions.yml", textwrap.dedent("""\
                 "legacy_mod.*":
                   disabled_rules:
                     - reserved_name
@@ -212,12 +212,12 @@ class Testcstylecheck_exclusions(unittest.TestCase):
                          "void other_mod_DoWork(void){\n"
                          "    int strlen = 0; (void)strlen;\n"
                          "}\n")
-            _, out = _run("--cstylecheck_exclusions", str(excl), files=[src])
+            _, out = _run("--exclusions", str(excl), files=[src])
         self.assertIn("reserved_name", out)
 
     def test_multiple_rules_can_be_disabled(self):
         with tempfile.TemporaryDirectory() as td:
-            excl = _write(td, "cstylecheck_exclusions.yml", textwrap.dedent("""\
+            excl = _write(td, "exclusions.yml", textwrap.dedent("""\
                 "legacy_mod.*":
                   disabled_rules:
                     - reserved_name
@@ -227,7 +227,7 @@ class Testcstylecheck_exclusions(unittest.TestCase):
                          "void legacy_mod_DoWork(void){\n"
                          "\tint strlen = 0; (void)strlen;\n"
                          "}\n")
-            _, out = _run("--cstylecheck_exclusions", str(excl), files=[src])
+            _, out = _run("--exclusions", str(excl), files=[src])
         self.assertNotIn("reserved_name", out)
         self.assertNotIn("misc.indentation", out)
 
