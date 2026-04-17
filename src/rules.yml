@@ -36,6 +36,9 @@ variables:
   # (e.g. i, ix, ii) are exempt from the min_length rule regardless of
   # allow_single_char_loop_vars. Useful when min_length >= 2 but you want
   # to permit conventional loop counters.
+  # NOTE: intentionally set to false in tests/ copy -- TestAllowLoopVarsShort
+  # in test_misc_improvements.py verifies default-is-false behaviour.
+  # src/ canonical copy sets this to true (project default).
   allow_loop_vars_short: true
 
   # Uppercase abbreviations that are allowed anywhere in an otherwise
@@ -403,6 +406,10 @@ misc:
     max: 180
 
   # Tabs vs spaces
+  # NOTE: this is intentionally set to 'spaces' in the tests/ copy so that
+  # the tab-prefixed source in TestWarningsAsErrors (test_cli.py) triggers
+  # misc.indentation INFO violations, enabling --warnings-as-errors tests.
+  # The src/ canonical copy uses 'tabs' as the project default.
   indentation:
     enabled: true
     severity: info

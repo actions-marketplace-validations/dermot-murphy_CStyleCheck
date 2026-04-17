@@ -32,6 +32,10 @@ variables:
   allow_single_char_loop_vars: true  # Barr-C 7.1.e: when true, single-character
                                       # loop variables (e.g. i, j, k) are exempt
                                       # from the min_length rule
+  # When true, variables that appear only as for-loop iteration counters
+  # (e.g. i, ix, ii) are exempt from the min_length rule regardless of
+  # allow_single_char_loop_vars. Useful when min_length >= 2 but you want
+  # to permit conventional loop counters.
   # NOTE: intentionally set to false in tests/ copy -- TestAllowLoopVarsShort
   # in test_misc_improvements.py verifies default-is-false behaviour.
   # src/ canonical copy sets this to true (project default).
