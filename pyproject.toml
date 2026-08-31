@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name            = "cstylecheck"
-version         = "1.0.0"
+version         = "1.6.0"
 description     = "Embedded C Style Compliance Checker (Barr-C / MISRA-C complementary)"
 readme          = "README.md"
 license         = { text = "MIT" }
@@ -35,7 +35,10 @@ cstylecheck = "cstylecheck:main"
 # =============================================================================
 
 [tool.setuptools]
-py-modules = ["cstylecheck", "_version"]
+# _version is a standalone top-level module alongside the package.
+# cstylecheck is now a package (src/cstylecheck/) rather than a single module.
+py-modules = ["_version"]
+packages   = ["cstylecheck"]
 
 [tool.setuptools.package-dir]
 "" = "src"
@@ -59,3 +62,30 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source = ["src"]
+branch = true
+
+# =============================================================================
+# Ruff lint configuration (issue #66)
+# =============================================================================
+# Rules selected: E (pycodestyle errors), F (pyflakes), W (pycodestyle warnings)
+# Ignored rules reflect intentional style choices in the existing codebase:
+#   E401 — multiple imports on one line (test helpers do this for brevity)
+#   E501 — line too long (many checker lines exceed 88 chars intentionally)
+#   E701 — multiple statements on one line/colon (compact conditional style)
+#   E702 — multiple statements on one line/semicolon (compact lookup style)
+#   E741 — ambiguous variable name (l/I appear in C-analysis context)
+# F401 (imported-but-unused) is suppressed per-file for tests because each
+# test module imports the full harness surface area but uses only a subset.
+# =============================================================================
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E401",   # Multiple imports on one line
+    "E501",   # Line too long
+    "E701",   # Multiple statements on one line (colon)
+    "E702",   # Multiple statements on one line (semicolon)
+    "E741",   # Ambiguous variable name
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["F401"]   # Test modules import selectively from harness

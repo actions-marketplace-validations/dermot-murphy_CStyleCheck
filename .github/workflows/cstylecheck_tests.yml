@@ -3,6 +3,7 @@ name: CStyleCheck Tests
 on:
   push:
     paths:
+      - "src/cstylecheck/**"
       - "src/cstylecheck.py"
       - "src/rules.yml"
       - "src/_version.py"
@@ -15,6 +16,7 @@ on:
       - ".github/workflows/cstylecheck_tests.yml"
   pull_request:
     paths:
+      - "src/cstylecheck/**"
       - "src/cstylecheck.py"
       - "src/rules.yml"
       - "src/_version.py"
@@ -38,7 +40,10 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-python@v6
         with:
@@ -78,32 +83,65 @@ jobs:
           echo "YAML diff check passed -- only permitted test-fixture differences found."
 
       # -----------------------------------------------------------------------
-      # ASPICE SWE.4 BP7: coverage must meet the targets documented in
-      # CSC-SWE4-001 (>=90% statement, >=85% branch).
+      # ASPICE SWE.4 BP7: subprocess coverage instrumentation (issue #54)
       #
-      # Current measured coverage: ~72%.  The gap is entirely in main() and
-      # the CLI output helpers (lines 2894-3559) which are exercised only via
-      # subprocess in test_cli.py.  pytest-cov cannot instrument child
-      # processes without COVERAGE_PROCESS_START / sitecustomize.py support.
+      # sitecustomize.py is written to the workspace root so that any Python
+      # child process with PYTHONPATH=. calls coverage.process_startup().
+      # COVERAGE_PROCESS_START tells coverage which config to read (pyproject.toml).
+      # This allows test_cli.py subprocess invocations to be instrumented,
+      # closing the gap between the 86% statement-only baseline and the ≥90%
+      # statement / ≥85% branch targets in CSC-SWE4-001 §4.2.
       #
-      # Gate is set to 72 (current baseline) to catch any regressions.
-      # Raise to 90 once subprocess coverage instrumentation is added.
+      # Gate: ≥85% combined (statement + branch) — closes issue #54.
       # See: https://pytest-cov.readthedocs.io/en/latest/subprocess-support.html
       # -----------------------------------------------------------------------
-      - name: Run unit tests with coverage gate
+      - name: Setup subprocess coverage instrumentation
         run: |
-          pytest tests/ --ignore=tests/test_cli.py \
+          printf 'try:\n    import coverage\n    coverage.process_startup()\nexcept ImportError:\n    pass\n' \
+            > sitecustomize.py
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "COVERAGE_PROCESS_START=$GITHUB_WORKSPACE/pyproject.toml" >> $GITHUB_ENV
+
+      - name: Run all tests with coverage gate (statement + branch)
+        run: |
+          pytest tests/ \
             -v --tb=short \
             --cov=src --cov-report=term-missing \
             --cov-report=xml:coverage.xml \
-            --cov-fail-under=72
+            --cov-branch \
+            --cov-fail-under=85
 
-      - name: Run CLI integration tests
-        run: pytest tests/test_cli.py -v --tb=short
+      # -----------------------------------------------------------------------
+      # Static type check — catches import errors and inferred type mismatches.
+      # --ignore-missing-imports suppresses third-party stub warnings; the
+      # codebase is unannotated so --strict is deferred until annotations are
+      # added (see issue #66). Only runs on one Python version to avoid noise.
+      # -----------------------------------------------------------------------
+      - name: Static type check
+        if: matrix.python-version == '3.11'
+        run: mypy src/cstylecheck/ --ignore-missing-imports --implicit-optional
+
+      # -----------------------------------------------------------------------
+      # Lint check — enforces code style and catches common errors via ruff.
+      # -----------------------------------------------------------------------
+      - name: Lint check
+        if: matrix.python-version == '3.11'
+        run: ruff check src/ tests/
+
+      # -----------------------------------------------------------------------
+      # Spell-check — catches typos in source code, docs, and YAML files.
+      # False-positive words are suppressed in .codespellrc (issue #161).
+      # Only runs on one Python version to avoid duplicate reports.
+      # -----------------------------------------------------------------------
+      - name: Spell check
+        if: matrix.python-version == '3.11'
+        run: |
+          pip install codespell --quiet
+          codespell
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage.xml

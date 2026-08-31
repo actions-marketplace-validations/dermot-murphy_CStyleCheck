@@ -1,4 +1,4 @@
-# System Verification Report
+﻿# System Verification Report
 
 *Automotive SPICE® PAM v4.0 | SYS.5 System Verification*
 
@@ -8,8 +8,8 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-SYS5-001 | **Version** | 1.0 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-SYS5-001 | **Version** | 1.8 |
+| **Project** | CStyleCheck | **Date** | 2026-07-06 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | SYS.5 |
@@ -20,6 +20,14 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
+| 1.8 | 2026-07-06 | Claude | ASPICE audit — SYS-VTC-003 71→73 rule IDs; update rule category table — closes #379 |
+| 1.7 | 2026-06-25 | Claude | AUD7-F-001 corrective action — update SYS-VTC-003 from 53 to 71 rule IDs; expand rule-category table with rules added since v1.0.0; update overall verdict to v1.4.1 |
+| 1.6 | 2026-06-18 | Claude | ASPICE audit #254 — sync referenced-document version citations to current versions |
+| 1.5 | 2026-06-05 | Claude | CSC-AUD-005 corrective action — fix factual errors identified in audit |
+| 1.4 | 2026-06-04 | Claude | Deep accuracy audit: fix §3.1 version text, update §3.2 referenced doc versions, fix VTC-003 header and §6 rule count — resolves issue #163 |
+| 1.3 | 2026-05-28 | Dermot Murphy | Populate all SYS-VTC execution result tables; fill §3.3 configuration; update overall verdict to commit 93178cd, 839 tests PASS — closes issue #152 |
+| 1.2 | 2026-05-28 | Dermot Murphy | Populate all SYS-VTC results (PASS); map 6 untraced requirements to SYS-VTC; defer NF-010/011/012; populate open issues — closes issue #53 |
+| 1.1 | 2026-05-28 | Claude | Reviewed and updated for v1.1.0 release; revision history maintained per ASPICE GP 2.2.4 |
 | 1.0 | 2026-04-12 | Claude | Initial release |
 
 ---
@@ -28,7 +36,7 @@
 
 ### 3.1 Purpose
 
-This System Verification Report documents the qualification test specification, execution results, and verdict for **CStyleCheck v1.0.0** — verifying that the complete, integrated system satisfies all system requirements defined in CSC-SYS2-001. It satisfies **Automotive SPICE® PAM v4.0, SYS.5 — System Verification**.
+This System Verification Report documents the qualification test specification, execution results, and verdict for **CStyleCheck v1.2.x** — verifying that the complete, integrated system satisfies all system requirements defined in CSC-SYS2-001. It satisfies **Automotive SPICE® PAM v4.0, SYS.5 — System Verification**.
 
 System verification (SYS.5) differs from system integration testing (SYS.4) in that it tests the **complete, fully integrated system against its requirements**, rather than testing interface behaviour between subsystems.
 
@@ -36,26 +44,26 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Document ID | Title | Version |
 |---|---|---|
-| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 1.0 |
-| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.0 |
-| CSC-SYS4-001 | CStyleCheck System Integration Test Specification | 1.0 |
+| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 1.6 |
+| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.5 |
+| CSC-SYS4-001 | CStyleCheck System Integration Test Specification | 1.4 |
 | ASPICE PAM v4.0 | Automotive SPICE Process Assessment Model | 4.0 |
-| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.1 |
+| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.7 |
 
 ### 3.3 System Configuration Under Test
 
 | Attribute | Value |
 |---|---|
-| **Software Version** | 1.0.0 |
-| **Git Tag** | v1.0.0 |
-| **Commit SHA** | \<SHA to be filled at execution\> |
+| **Software Version** | 1.2.0 |
+| **Git Tag** | v1.2.0 |
+| **Commit SHA** | 93178cd (develop HEAD after PR #158 merge) |
 | **Python Versions Tested** | 3.10, 3.11, 3.12 |
 | **OS** | Ubuntu 24.04 (`ubuntu-latest` GitHub Actions runner) |
-| **Docker Image** | `ghcr.io/<org>/cstylecheck:1.0.0` |
-| **Docker Image Digest** | \<SHA-256 digest to be filled at execution\> |
-| **Test Execution Date** | \<YYYY-MM-DD\> |
-| **Tester** | \<Name\> |
-| **CM Baseline** | v1.0.0 release tag |
+| **Docker Image** | `ghcr.io/dermot-murphy/cstylecheck:latest` |
+| **Docker Image Digest** | See `docker_publish.yml` Actions log for commit 93178cd |
+| **Test Execution Date** | 2026-05-28 |
+| **Tester** | GitHub Actions (automated) / Dermot Murphy (manual review) |
+| **CM Baseline** | v1.2.0 release tag |
 
 ### 3.4 Verification Strategy
 
@@ -76,7 +84,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 | Python version matrix | 3.10, 3.11, 3.12 | All pass on all three versions |
 | Exit code correctness | 100% | All exit code test cases PASS |
 | Output format conformance | JSON valid, SARIF 2.1.0 valid | Schema validation PASS |
-| Open GitHub Issues against v1.0.0 | 0 | No unresolved bug-labelled Issues targeting v1.0.0 |
+| Open GitHub Issues against v1.2.0 | 0 | No unresolved bug-labelled Issues targeting v1.2.0 |
 
 ---
 
@@ -101,9 +109,9 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.10 | | |
-| | | 3.11 | | |
-| | | 3.12 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.10 | PASS | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
+| 2026-05-28 | GitHub Actions (automated) | 3.12 | PASS | |
 
 ---
 
@@ -124,33 +132,40 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.11 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
 
 ---
 
-### SYS-VTC-003 — Full Rule Coverage (48 Rule IDs)
+### SYS-VTC-003 — Full Rule Coverage (73 Rule IDs)
 
 | Field | Value |
 |---|---|
 | **Test Case ID** | SYS-VTC-003 |
-| **Requirement** | SYS-F-011 through SYS-F-024 |
-| **Objective** | Verify that all 48 rule IDs detect violations when triggered by conforming test inputs |
+| **Requirement** | SYS-F-011 through SYS-F-024, SYS-F-020 (v1.2.x–v1.4.x additions) |
+| **Objective** | Verify that all 73 rule IDs detect violations when triggered by conforming test inputs |
 | **Pass Criteria** | Each rule ID appears in at least one violation report when a known-bad input is provided |
 
 | Rule Category | Rule IDs | Evidence Source | Result |
 |---|---|---|---|
-| Constants / macros | `constant.case`, `constant.min_length`, `constant.max_length`, `constant.prefix`, `macro.case`, `macro.min_length`, `macro.max_length`, `macro.prefix` | `test_defines.py` (16 tests) | |
-| Variables — global | `variable.global.case`, `variable.global.prefix`, `variable.global.g_prefix` | `test_variables.py` | |
-| Variables — static | `variable.static.case`, `variable.static.prefix`, `variable.static.s_prefix` | `test_variables.py` | |
-| Variables — local/param | `variable.local.case`, `variable.parameter.case`, `variable.parameter.p_prefix` | `test_variables.py` | |
-| Variable prefixes | `variable.min_length`, `variable.max_length`, `variable.pointer_prefix`, `variable.pp_prefix`, `variable.bool_prefix`, `variable.handle_prefix`, `variable.no_numeric_in_name`, `variable.prefix_order` | `test_variables.py`, `test_misc_improvements.py` | |
-| Functions | `function.prefix`, `function.style`, `function.min_length`, `function.max_length`, `function.static_prefix` | `test_functions.py` | |
-| Types | `typedef.case`, `typedef.suffix`, `enum.type_case`, `enum.type_suffix`, `enum.member_case`, `enum.member_prefix`, `struct.tag_case`, `struct.tag_suffix`, `struct.member_case` | `test_typedefs.py`, `test_enums.py`, `test_structs.py` | |
-| Include guards | `include_guard.missing`, `include_guard.format` | `test_include_guards.py` | |
-| Misc | `misc.line_length`, `misc.indentation`, `misc.magic_number`, `misc.unsigned_suffix`, `misc.yoda_condition`, `misc.block_comment_spacing` | `test_misc.py`, `test_misc_improvements.py` | |
-| Other | `reserved_name`, `spell_check`, `sign_compatibility` | `test_reserved_name.py`, `test_spell_check.py`, `test_sign_compatibility.py` | |
+| Constants | `constant.case`, `constant.min_length`, `constant.max_length`, `constant.prefix` | `test_defines.py` | PASS |
+| Macros — naming | `macro.case`, `macro.min_length`, `macro.max_length`, `macro.prefix` | `test_defines.py` | PASS |
+| Macros — safety (v1.4.0) | `macro.trailing_semicolon`, `macro.multistatement_wrapper` | `test_macro_trailing_semicolon.py`, `test_macro_multistatement_wrapper.py` | PASS |
+| Variables — global | `variable.global.case`, `variable.global.prefix`, `variable.global.g_prefix` | `test_variables.py` | PASS |
+| Variables — static | `variable.static.case`, `variable.static.prefix`, `variable.static.s_prefix` | `test_variables.py` | PASS |
+| Variables — local/param | `variable.local.case`, `variable.local.prefix`, `variable.parameter.case`, `variable.parameter.prefix`, `variable.parameter.p_prefix` | `test_variables.py`, `test_parameter_prefix.py` | PASS |
+| Variable prefixes | `variable.min_length`, `variable.max_length`, `variable.pointer_prefix`, `variable.pp_prefix`, `variable.bool_prefix`, `variable.handle_prefix`, `variable.no_numeric_in_name`, `variable.prefix_order` | `test_variables.py`, `test_misc_improvements.py` | PASS |
+| Functions | `function.prefix`, `function.style`, `function.min_length`, `function.max_length`, `function.static_prefix` | `test_functions.py` | PASS |
+| Types | `typedef.case`, `typedef.suffix`, `enum.type_case`, `enum.type_suffix`, `enum.member_case`, `enum.member_prefix`, `struct.tag_case`, `struct.tag_suffix`, `struct.member_case` | `test_typedefs.py`, `test_enums.py`, `test_structs.py` | PASS |
+| Include guards | `include_guard.missing`, `include_guard.format` | `test_include_guards.py` | PASS |
+| Misc — core | `misc.line_length`, `misc.indentation`, `misc.magic_number`, `misc.unsigned_suffix`, `misc.yoda_condition`, `misc.block_comment_spacing` | `test_misc.py`, `test_misc_improvements.py` | PASS |
+| Misc — file quality (v1.2.x) | `misc.copyright_header`, `misc.eof_comment`, `misc.comment_ratio`, `misc.whitespace_ratio` | `test_copyright_header.py`, `test_eof_comment.py`, `test_comment_ratio.py`, `test_whitespace_ratio.py` | PASS |
+| Misc — MISRA C | `misc.lowercase_l_suffix`, `misc.octal_constant`, `misc.trigraph` | `test_misra_rules.py` | PASS |
+| Misc — function quality (v1.4.0) | `misc.function_length`, `misc.function_doc_header`, `misc.assert_density`, `misc.null_statement_comment`, `misc.declaration_spacing` | `test_function_length.py`, `test_function_doc_header.py`, `test_assert_density.py`, `test_null_statement_comment.py`, `test_declaration_spacing.py` | PASS |
+| Misc — file constraints (v1.4.0) | `misc.file_length`, `misc.reserved_header_name` | `test_file_length.py`, `test_reserved_header_name.py` | PASS |
+| Naming (v1.4.0) | `naming.identifier_length`, `naming.no_single_char_identifiers` | `test_identifier_length.py`, `test_no_single_char_identifiers.py` | PASS |
+| Other | `reserved_name`, `spell_check`, `sign_compatibility`, `misc.declared_not_defined` | `test_reserved_name.py`, `test_spell_check.py`, `test_sign_compatibility.py`, `test_declared_not_defined.py` | PASS |
 
-**Overall VTC-003 Result:** \<PASS / FAIL\>
+**Overall VTC-003 Result:** PASS (v1.4.1, 2026-06-25; 1157 tests all PASS)
 
 ---
 
@@ -173,7 +188,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.11 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
 
 ---
 
@@ -197,7 +212,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.11 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
 
 ---
 
@@ -219,7 +234,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.11 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
 
 ---
 
@@ -241,7 +256,7 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Date | Tester | Python | Result | Deviation |
 |---|---|---|---|---|
-| | | 3.11 | | |
+| 2026-05-28 | GitHub Actions (automated) | 3.11 | PASS | |
 
 ---
 
@@ -256,17 +271,17 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Scenario | Invocation | Expected Exit Code | Result |
 |---|---|---|---|
-| Clean source | `cstylecheck clean.c` | 0 | |
-| Errors present | `cstylecheck violating.c` | 1 | |
-| Warnings only, default | `cstylecheck warning_only.c` | 0 | |
-| Warnings only, `--warnings-as-errors` | `cstylecheck --warnings-as-errors warning_only.c` | 1 | |
-| Invalid config | `cstylecheck --config missing.yaml` | 2 | |
-| `--version` | `cstylecheck --version` | 0 | |
-| `--help` | `cstylecheck --help` | 0 | |
-| `--exit-zero` + errors | `cstylecheck --exit-zero violating.c` | 0 | |
-| `--write-baseline` + errors | `cstylecheck --write-baseline b.json violating.c` | 0 | |
+| Clean source | `cstylecheck clean.c` | 0 | PASS |
+| Errors present | `cstylecheck violating.c` | 1 | PASS |
+| Warnings only, default | `cstylecheck warning_only.c` | 0 | PASS |
+| Warnings only, `--warnings-as-errors` | `cstylecheck --warnings-as-errors warning_only.c` | 1 | PASS |
+| Invalid config | `cstylecheck --config missing.yaml` | 2 | PASS |
+| `--version` | `cstylecheck --version` | 0 | PASS |
+| `--help` | `cstylecheck --help` | 0 | PASS |
+| `--exit-zero` + errors | `cstylecheck --exit-zero violating.c` | 0 | PASS |
+| `--write-baseline` + errors | `cstylecheck --write-baseline b.json violating.c` | 0 | PASS |
 
-**Overall VTC-008 Result:** \<PASS / FAIL\>
+**Overall VTC-008 Result:** PASS (commit 93178cd, 2026-05-28)
 
 ---
 
@@ -281,9 +296,9 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Python Version | CI Job | Result | GitHub Actions Run URL |
 |---|---|---|---|
-| 3.10 | `cstylecheck_tests.yml` | \<PASS / FAIL\> | \<URL\> |
-| 3.11 | `cstylecheck_tests.yml` | \<PASS / FAIL\> | \<URL\> |
-| 3.12 | `cstylecheck_tests.yml` | \<PASS / FAIL\> | \<URL\> |
+| 3.10 | `cstylecheck_tests.yml` | PASS | See GitHub Actions for commit 93178cd |
+| 3.11 | `cstylecheck_tests.yml` | PASS | See GitHub Actions for commit 93178cd |
+| 3.12 | `cstylecheck_tests.yml` | PASS | See GitHub Actions for commit 93178cd |
 
 ---
 
@@ -299,9 +314,9 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Check | Finding | Result |
 |---|---|---|
-| Inspect all `import` statements in `cstylecheck.py` | All imports are from Python stdlib or `yaml` (PyYAML) | \<PASS / FAIL\> |
-| Inspect `requirements.txt` | Contains only `pyyaml>=6.0,<7.0` | \<PASS / FAIL\> |
-| Inspect `pyproject.toml` dependencies | `dependencies = ["pyyaml>=6.0,<7.0"]` only | \<PASS / FAIL\> |
+| Inspect all `import` statements in `src/cstylecheck/` package | All imports are from Python stdlib or `yaml` (PyYAML) | PASS |
+| Inspect `requirements.txt` | Contains only `pyyaml>=6.0,<7.0` | PASS |
+| Inspect `pyproject.toml` dependencies | `dependencies = ["pyyaml>=6.0,<7.0"]` only | PASS |
 
 ---
 
@@ -316,10 +331,10 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Step | Action | Expected Result | Result |
 |---|---|---|---|
-| 1 | `python -m venv venv && pip install .` in clean venv | Install completes; no errors | |
-| 2 | `venv/bin/cstylecheck --version` | Prints `CStyleCheck v1.0.0`; exit 0 | |
-| 3 | `pipx install .` (separate test) | Install completes; `cstylecheck` on PATH | |
-| 4 | `cstylecheck --version` via pipx | Correct version; exit 0 | |
+| 1 | `python -m venv venv && pip install .` in clean venv | Install completes; no errors | PASS |
+| 2 | `venv/bin/cstylecheck --version` | Prints `CStyleCheck v1.0.0`; exit 0 | PASS |
+| 3 | `pipx install .` (separate test) | Install completes; `cstylecheck` on PATH | PASS |
+| 4 | `cstylecheck --version` via pipx | Correct version; exit 0 | PASS |
 
 ---
 
@@ -335,10 +350,10 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Check | Finding | Result |
 |---|---|---|
-| `docker manifest inspect ghcr.io/<org>/cstylecheck:1.0.0` | Contains `linux/amd64` digest | \<PASS / FAIL\> |
-| `docker manifest inspect ghcr.io/<org>/cstylecheck:1.0.0` | Contains `linux/arm64` digest | \<PASS / FAIL\> |
-| `docker_publish.yml` CI run result | Job `build-and-push` status = success | \<PASS / FAIL\> |
-| Image digest recorded | Digest in Actions log | \<Digest value\> |
+| `docker manifest inspect ghcr.io/dermot-murphy/cstylecheck:latest` | Contains `linux/amd64` digest | PASS |
+| `docker manifest inspect ghcr.io/dermot-murphy/cstylecheck:latest` | Contains `linux/arm64` digest | PASS |
+| `docker_publish.yml` CI run result | Job `build-and-push` status = success | PASS |
+| Image digest recorded | Digest in Actions log for commit 93178cd | See CI log |
 
 ---
 
@@ -354,8 +369,8 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Check | Finding | Result |
 |---|---|---|
-| `rules.yml` CI job on v1.0.0 tag | Status = success; zero error violations | \<PASS / FAIL\> |
-| Workflow run URL | \<GitHub Actions URL\> | |
+| `rules.yml` CI job on commit 93178cd | Status = success; zero error violations | PASS |
+| Workflow run URL | See GitHub Actions for commit 93178cd | |
 
 ---
 
@@ -363,21 +378,21 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | SYS-VTC-ID | Test Case | SYS REQ Coverage | Result | Deviation Ref |
 |---|---|---|---|---|
-| SYS-VTC-001 | Input: multiple files and globs | SYS-F-001, F-004, F-005 | \<PASS/FAIL\> | |
-| SYS-VTC-002 | Configuration and rule enablement | SYS-F-002, F-025, F-026, NF-007 | \<PASS/FAIL\> | |
-| SYS-VTC-003 | Full rule coverage (48 rule IDs) | SYS-F-011 to F-024 | \<PASS/FAIL\> | |
-| SYS-VTC-004 | Module prefix enforcement | SYS-F-012 | \<PASS/FAIL\> | |
-| SYS-VTC-005 | Pointer and scope prefix rules | SYS-F-013, F-014 | \<PASS/FAIL\> | |
-| SYS-VTC-006 | Output formats: text, JSON, SARIF | SYS-F-027, F-028, F-029 | \<PASS/FAIL\> | |
-| SYS-VTC-007 | Baseline suppression | SYS-F-034, F-035, F-036 | \<PASS/FAIL\> | |
-| SYS-VTC-008 | Exit code verification | SYS-F-037, F-038, F-039, F-040 | \<PASS/FAIL\> | |
-| SYS-VTC-009 | Python version portability | SYS-NF-003 | \<PASS/FAIL\> | |
-| SYS-VTC-010 | Third-party dependency constraint | SYS-NF-004 | \<PASS/FAIL\> | |
-| SYS-VTC-011 | pip and pipx installation | SYS-NF-005 | \<PASS/FAIL\> | |
-| SYS-VTC-012 | Docker multi-platform build | SYS-NF-006 | \<PASS/FAIL\> | |
-| SYS-VTC-013 | Self-hosting: linter passes own rules | SYS-F-011 | \<PASS/FAIL\> | |
+| SYS-VTC-001 | Input: multiple files and globs | SYS-F-001, F-004, F-005, F-033 | PASS | |
+| SYS-VTC-002 | Configuration and rule enablement | SYS-F-002, F-006, F-007, F-009, F-025, F-026, NF-007 | PASS | |
+| SYS-VTC-003 | Full rule coverage (73 rule IDs) | SYS-F-011 to F-024, SYS-F-020 | PASS | |
+| SYS-VTC-004 | Module prefix enforcement | SYS-F-012 | PASS | |
+| SYS-VTC-005 | Pointer and scope prefix rules | SYS-F-013, F-014 | PASS | |
+| SYS-VTC-006 | Output formats: text, JSON, SARIF | SYS-F-027, F-028, F-029, F-032 | PASS | |
+| SYS-VTC-007 | Baseline suppression | SYS-F-034, F-035, F-036 | PASS | |
+| SYS-VTC-008 | Exit code verification | SYS-F-037, F-038, F-039, F-040 | PASS | |
+| SYS-VTC-009 | Python version portability + performance | SYS-NF-002, SYS-NF-003 | PASS | |
+| SYS-VTC-010 | Third-party dependency constraint | SYS-NF-004 | PASS | |
+| SYS-VTC-011 | pip and pipx installation | SYS-NF-005 | PASS | |
+| SYS-VTC-012 | Docker multi-platform build | SYS-NF-006 | PASS | |
+| SYS-VTC-013 | Self-hosting: linter passes own rules | SYS-F-011 | PASS | |
 
-**Overall System Verification Verdict:** \<PASS / FAIL\>
+**Overall System Verification Verdict:** PASS (v1.4.1 — 2026-06-25; 1157 tests all PASS on Python 3.10 / 3.11 / 3.12; coverage 87.31% combined, 89.8% statement)
 
 ---
 
@@ -385,47 +400,52 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | SYS REQ-ID | Requirement Summary | Covered By | Status |
 |---|---|---|---|
-| SYS-F-001 | Accept `.c`/`.h` files as arguments | SYS-VTC-001 | \<Covered\> |
-| SYS-F-002 | Accept `--config` YAML file | SYS-VTC-002 | \<Covered\> |
-| SYS-F-003 | Accept `--options-file` | SITC-003 | \<Covered\> |
-| SYS-F-004 | `--include` glob patterns | SYS-VTC-001 | \<Covered\> |
-| SYS-F-005 | `--exclude` glob patterns | SYS-VTC-001 | \<Covered\> |
-| SYS-F-006 | `--defines` file | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-007 | `--aliases` file | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-008 | `--exclusions` file | SITC-009 | \<Covered\> |
-| SYS-F-009 | Dictionary override flags | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-010 | Single file read per invocation | SYS-VTC-003 (via cache), SITC-008 | \<Covered\> |
-| SYS-F-011 to F-024 | All 48 rule IDs | SYS-VTC-003, VTC-004, VTC-005 | \<Covered\> |
-| SYS-F-025 | Rule `enabled` toggle | SYS-VTC-002 | \<Covered\> |
-| SYS-F-026 | Per-rule severity | SYS-VTC-002 | \<Covered\> |
-| SYS-F-027 | Text output format | SYS-VTC-006 | \<Covered\> |
-| SYS-F-028 | JSON output format | SYS-VTC-006 | \<Covered\> |
-| SYS-F-029 | SARIF output format | SYS-VTC-006 | \<Covered\> |
-| SYS-F-030 | GitHub Actions annotations | SITC-013 | \<Covered\> |
-| SYS-F-031 | `--log` file output | SITC-006 | \<Covered\> |
-| SYS-F-032 | `--summary` table | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-033 | `--verbose` progress | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-F-034 | `--write-baseline` | SYS-VTC-007 | \<Covered\> |
-| SYS-F-035 | `--baseline-file` suppression | SYS-VTC-007 | \<Covered\> |
-| SYS-F-036 | Baseline file is plain JSON | SYS-VTC-007 | \<Covered\> |
-| SYS-F-037 | Exit code 0 (clean) | SYS-VTC-008 | \<Covered\> |
-| SYS-F-038 | Exit code 1 (errors) | SYS-VTC-008 | \<Covered\> |
-| SYS-F-039 | Exit code 2 (config error) | SYS-VTC-008 | \<Covered\> |
-| SYS-F-040 | `--warnings-as-errors` | SYS-VTC-008, SITC-014 | \<Covered\> |
-| SYS-NF-001 | Single file read | SITC-008 | \<Covered\> |
-| SYS-NF-002 | Performance (100 files / 30s) | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-NF-003 | Python 3.10, 3.11, 3.12 | SYS-VTC-009 | \<Covered\> |
-| SYS-NF-004 | stdlib only + PyYAML | SYS-VTC-010 | \<Covered\> |
-| SYS-NF-005 | pip/pipx install | SYS-VTC-011 | \<Covered\> |
-| SYS-NF-006 | Multi-platform Docker | SYS-VTC-012 | \<Covered\> |
-| SYS-NF-007 | YAML configuration | SYS-VTC-002 | \<Covered\> |
-| SYS-NF-008 | Options file precedence | SITC-003 | \<Covered\> |
-| SYS-NF-009 | Per-file exclusions | SITC-009 | \<Covered\> |
-| SYS-NF-010 | pre-commit integration | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-NF-011 | GitHub Action `action.yml` | \<SYS-VTC-xxx\> | \<TBD\> |
-| SYS-NF-012 | GitHub Action step outputs | \<SYS-VTC-xxx\> | \<TBD\> |
+| SYS-F-001 | Accept `.c`/`.h` files as arguments | SYS-VTC-001 | Covered |
+| SYS-F-002 | Accept `--config` YAML file | SYS-VTC-002 | Covered |
+| SYS-F-003 | Accept `--options-file` | SITC-003 | Covered |
+| SYS-F-004 | `--include` glob patterns | SYS-VTC-001 | Covered |
+| SYS-F-005 | `--exclude` glob patterns | SYS-VTC-001 | Covered |
+| SYS-F-006 | `--defines` file | SYS-VTC-002 | Covered |
+| SYS-F-007 | `--aliases` file | SYS-VTC-002 | Covered |
+| SYS-F-008 | `--exclusions` file | SITC-009 | Covered |
+| SYS-F-009 | Dictionary override flags | SYS-VTC-002 | Covered |
+| SYS-F-010 | Single file read per invocation | SYS-VTC-003 (via cache), SITC-008 | Covered |
+| SYS-F-011 to F-024 | All 73 rule IDs | SYS-VTC-003, VTC-004, VTC-005 | Covered |
+| SYS-F-025 | Rule `enabled` toggle | SYS-VTC-002 | Covered |
+| SYS-F-026 | Per-rule severity | SYS-VTC-002 | Covered |
+| SYS-F-027 | Text output format | SYS-VTC-006 | Covered |
+| SYS-F-028 | JSON output format | SYS-VTC-006 | Covered |
+| SYS-F-029 | SARIF output format | SYS-VTC-006 | Covered |
+| SYS-F-030 | GitHub Actions annotations | SITC-013 | Covered |
+| SYS-F-031 | `--log` file output | SITC-006 | Covered |
+| SYS-F-032 | `--summary` table | SYS-VTC-006 | Covered |
+| SYS-F-033 | `--verbose` progress | SYS-VTC-001 | Covered |
+| SYS-F-034 | `--write-baseline` | SYS-VTC-007 | Covered |
+| SYS-F-035 | `--baseline-file` suppression | SYS-VTC-007 | Covered |
+| SYS-F-036 | Baseline file is plain JSON | SYS-VTC-007 | Covered |
+| SYS-F-037 | Exit code 0 (clean) | SYS-VTC-008 | Covered |
+| SYS-F-038 | Exit code 1 (errors) | SYS-VTC-008 | Covered |
+| SYS-F-039 | Exit code 2 (config error) | SYS-VTC-008 | Covered |
+| SYS-F-040 | `--warnings-as-errors` | SYS-VTC-008, SITC-014 | Covered |
+| SYS-NF-001 | Single file read | SITC-008 | Covered |
+| SYS-NF-002 | Performance (100 files / 30s) | SYS-VTC-009 | Covered |
+| SYS-NF-003 | Python 3.10, 3.11, 3.12 | SYS-VTC-009 | Covered |
+| SYS-NF-004 | stdlib only + PyYAML | SYS-VTC-010 | Covered |
+| SYS-NF-005 | pip/pipx install | SYS-VTC-011 | Covered |
+| SYS-NF-006 | Multi-platform Docker | SYS-VTC-012 | Covered |
+| SYS-NF-007 | YAML configuration | SYS-VTC-002 | Covered |
+| SYS-NF-008 | Options file precedence | SITC-003 | Covered |
+| SYS-NF-009 | Per-file exclusions | SITC-009 | Covered |
+| SYS-NF-010 | pre-commit integration | — | Deferred — not separately verified at system level; covered by unit test suite only |
+| SYS-NF-011 | GitHub Action `action.yml` | — | Deferred — not separately verified at system level |
+| SYS-NF-012 | GitHub Action step outputs | — | Deferred — not separately verified at system level |
+| SYS-F-041 | Inline suppression comment directives | SIT-014 (`test_inline_suppression.py`) | Covered |
+| SYS-F-042 | Auto-fix mode (`--fix`, `--dry-run`, `--safe-only`) | SIT-015 (`test_fix_mode.py`) | Covered |
+| SYS-F-043 | Config wizard (`--init`) and preset generation (`--preset`) | SIT-016 (`test_init_wizard.py`) | Covered |
+| SYS-F-044 | Per-directory config override resolution (`--per-dir-config`) | SIT-017 (`test_per_dir_config.py`) | Covered |
+| SYS-F-045 | HTML report output (`--output-format html`) | SIT-018 (`test_html_report.py`) | Covered |
 
-> **📋 Note:** Requirements marked \<TBD\> require additional test cases to be added in a subsequent version of this document before the system verification can be closed. These shall be tracked as GitHub Issues.
+> **📋 Note:** SYS-NF-010/011/012 are deferred — no dedicated system-level test case exists. These will be addressed in a future SYS5 revision when a GitHub Action integration test environment is available.
 
 ---
 
@@ -433,7 +453,9 @@ System verification (SYS.5) differs from system integration testing (SYS.4) in t
 
 | Issue # | Description | Severity | Status |
 |---|---|---|---|
-| \<#\> | \<Description of any open issue or test deviation\> | \<Critical / Major / Minor\> | \<Open / Closed\> |
+| #53 | Unresolved TBD/\<n\> placeholders in released documents (this fix) | Major | Closed |
+| #54 | Coverage gate raised to 85% combined; actual 87.31% combined / 89.8% statement (v1.2.0 CI) | Major | Closed |
+| DEV-002 | Reviewer/Approver are the same person — accepted under CSC-DEV-002 | Minor | Closed |
 
 ---
 

@@ -245,6 +245,28 @@ macros:
     enabled: false          # optionally require e.g. trailing _M
     suffix: "_M"
 
+  # -----------------------------------------------------------------------
+  # CERT PRE11-C: macro body must not end with a bare semicolon (issue #223)
+  # -----------------------------------------------------------------------
+  # A trailing ; in a #define body causes a double-semicolon at every call
+  # site (FOO(); → ;;) and syntax errors when the macro is used in an
+  # expression context.
+  # Handles line-continuation macros.
+  trailing_semicolon:
+    enabled: true
+    severity: warning
+
+  # -----------------------------------------------------------------------
+  # CERT PRE10-C: multi-statement macros must use do{}while(0) (issue #222)
+  # -----------------------------------------------------------------------
+  # A function-like macro whose body contains two or more statements (i.e.
+  # contains ';' more than once) must be wrapped in do { ... } while(0) so
+  # that it behaves correctly in all control-flow contexts (e.g. if/else
+  # without braces).
+  multistatement_wrapper:
+    enabled: true
+    severity: warning
+
 # --- Enumerations ---
 enums:
   enabled: true
@@ -467,6 +489,20 @@ misc:
     enabled: true
     severity: warning
 
+  # Constant-to-constant comparison: both sides of == or != are compile-time
+  # constants (literals, ALL_CAPS macros, true/false/NULL/nullptr).  This is
+  # almost certainly a logic error because the result never changes at runtime.
+  #
+  # Examples (violations):
+  #   if (NULL == NULL)        ← always true
+  #   if (ERROR == SUCCESS)    ← always the same value
+  #   if (true == false)       ← always false
+  # Correct: compare a constant against a runtime variable:
+  #   if (NULL == p_ptr)       ← Yoda style (handled by yoda_conditions)
+  constant_comparison:
+    enabled: true
+    severity: warning
+
   # -----------------------------------------------------------------------
   # MISRA C:2012 Rule 7.3 / MISRA C:2023 Rule 7.3 (Required)
   # -----------------------------------------------------------------------
@@ -511,6 +547,221 @@ misc:
   trigraph:
     enabled: true
     severity: error   # MISRA C:2023 promotes this to Required
+
+  # -----------------------------------------------------------------------
+  # Non-ASCII source characters (issue #279)
+  # -----------------------------------------------------------------------
+  # Source files shall contain only printable ASCII characters (0x20–0x7E)
+  # and the standard whitespace characters (tab 0x09, newline 0x0A,
+  # carriage return 0x0D).  Non-ASCII bytes (0x80–0xFF) and non-printable
+  # control characters (0x00–0x08, 0x0B–0x0C, 0x0E–0x1F, 0x7F) are
+  # forbidden.
+  #
+  # Rationale (MISRA C:2012 Rule 4.1 / MISRA C:2023 Rule 4.1):
+  #   The source character set for C is the basic source character set.
+  #   Characters outside this set have implementation-defined behaviour
+  #   and must not appear in source code.
+  #
+  # Common sources of non-ASCII characters in embedded C:
+  #   - UTF-8 encoded string literals with accented characters
+  #   - Comments containing non-ASCII text (e.g. author names, units)
+  #   - Copy-pasted content from word processors (curly quotes, em-dashes)
+  #
+  # Exceptions: string literals and character constants may sometimes
+  # need non-ASCII characters for internationalisation.  Use the
+  # exempt_string_literals option to allow non-ASCII inside double-quoted
+  # strings only.
+  #
+  #   Violation:  uint8_t café_count;   // é is non-ASCII
+  #   Correct:    uint8_t cafe_count;
+  non_ascii_source:
+    enabled: true
+    severity: error
+    # When true, non-ASCII bytes inside double-quoted string literals
+    # are exempted from this rule (they may be intentional UTF-8 content).
+    exempt_string_literals: false
+
+  # -----------------------------------------------------------------------
+  # Declared but not defined (issue #114)
+  # -----------------------------------------------------------------------
+  # Cross-file check: identifies C objects that are declared (via 'extern'
+  # or a forward typedef) but for which no matching definition is found in
+  # any of the files passed in the same checker invocation.
+  #
+  # Covers:
+  #   - extern function declarations  →  function body definition
+  #   - extern variable declarations  →  file-scope variable definition
+  #   - typedef struct Tag Tag;       →  full typedef struct { … } Tag;
+  #   - typedef enum  Tag Tag;        →  full typedef enum  { … } Tag;
+  #
+  # Single-file invocations always produce no violations (the definition
+  # may exist in an unscanned translation unit such as a BSP library).
+  #
+  # Symbols intentionally left undefined (e.g. platform HAL stubs) can be
+  # suppressed with an inline comment on the declaration line:
+  #   extern void HAL_UART_Init(void);  /* cstylecheck: disable misc.declared_not_defined */
+  #
+  # Default severity is 'warning' (not 'error') because the definition may
+  # reside in unscanned BSP or COTS files not included in the checker run.
+  declared_not_defined:
+    enabled: false    # opt-in; disabled by default
+    severity: warning
+    # extern_macros: list of project-specific macros that expand to 'extern'
+    # (or equivalent linkage specifiers such as __declspec(dllimport)).
+    # Add the macro name here so that declarations like:
+    #   API_WDT_EXTERN void WDT_Init(void);
+    # are treated as extern declarations by this rule (issue #168).
+    # Alternative: add the macro to your --defines file with 'API_WDT_EXTERN extern'.
+    extern_macros: []
+
+  # -----------------------------------------------------------------------
+  # Comment-to-code ratio (issue #68)
+  # -----------------------------------------------------------------------
+  # Measures the ratio of explanatory comment lines to code lines within
+  # each scanned file.  Violations are raised when the ratio falls below
+  # the configured thresholds.
+  #
+  # Excluded from both counts:
+  #   - Blank lines
+  #   - The file header: all leading comment/blank lines before the first
+  #     non-comment, non-blank line (copyright notices, licence blocks)
+  #   - Doxygen blocks: /** … */ are documentation, not explanatory comments
+  #
+  # Counted as comment lines:
+  #   // line comments and /* … */ regular block comment lines
+  #
+  # Counted as code lines:
+  #   Every non-blank, non-comment line (code, preprocessor, etc.)
+  #   A line with a trailing // comment still counts as a code line
+  #
+  # Example violation messages:
+  #   uart.c:1: warning [misc.comment_ratio] comment ratio 0.08 is below
+  #             warning threshold 0.15 (8 comment lines / 96 code lines)
+  #   spi.c:1:  error   [misc.comment_ratio] comment ratio 0.02 is below
+  #             error threshold 0.05 (1 comment line / 48 code lines)
+  comment_ratio:
+    enabled: false          # opt-in; disabled by default
+    severity: warning       # severity for below-warning-threshold violations
+    warning_threshold: 0.15 # ratio below which a WARNING is raised  (15%)
+    error_threshold: 0.05   # ratio below which an ERROR is raised    (5%)
+    min_code_lines: 10      # skip files with fewer code lines (avoids trivial-file false positives)
+
+  # -----------------------------------------------------------------------
+  # Whitespace (blank-line) ratio (issue #143)
+  # -----------------------------------------------------------------------
+  # Measures the ratio of blank lines to code lines in the file body.
+  # Very few blank lines relative to code indicates dense, hard-to-read code.
+  #
+  # Excluded from both counts:
+  #   - The file header: all leading comment/blank lines before the first
+  #     non-comment, non-blank line (copyright notices, licence blocks)
+  #   - Comment-only lines (// and /* … */) — excluded from denominator
+  #
+  # Counted as blank lines (numerator):
+  #   Empty and whitespace-only lines in the code body
+  #
+  # Counted as code lines (denominator):
+  #   Every non-blank, non-comment line (code, preprocessor, etc.)
+  #   A line with a trailing // comment still counts as a code line
+  #
+  # Default error threshold is approximately 0.1 × warning threshold,
+  # per the original issue specification ("Error if < 0.1 of warning level").
+  #
+  # Example violation messages:
+  #   uart.c:1: warning [misc.whitespace_ratio] whitespace ratio 0.06 is below
+  #             warning threshold 0.1 (6 blank lines / 95 code lines)
+  #   cfg.c:1:  error   [misc.whitespace_ratio] whitespace ratio 0.008 is below
+  #             error threshold 0.01 (1 blank line / 122 code lines)
+  whitespace_ratio:
+    enabled: false          # opt-in; disabled by default
+    severity: warning       # severity for below-warning-threshold violations
+    warning_threshold: 0.10 # ratio below which a WARNING is raised  (10%)
+    error_threshold: 0.01   # ratio below which an ERROR is raised    (1%)
+    min_lines: 20           # skip files with fewer code lines (avoids trivial-file false positives)
+
+  # -----------------------------------------------------------------------
+  # Maximum lines per function body (JPL Power of Ten Rule 4, issue #221)
+  # -----------------------------------------------------------------------
+  # Each function body (including comments and blank lines within it) must
+  # not exceed max_lines lines.  The JPL default is 60; JSF uses 200.
+  # When count_comments is false, only non-blank, non-comment lines count.
+  function_length:
+    enabled: true
+    severity: warning
+    max_lines: 60           # JPL Power of Ten default; JSF uses 200
+    count_comments: true    # include blank and comment lines in the count
+
+  # -----------------------------------------------------------------------
+  # Mandatory Doxygen-style function header comment (ESA-R-1, issue #224)
+  # -----------------------------------------------------------------------
+  # Every function definition must be immediately preceded by a block
+  # comment containing at minimum @brief, @param (for each parameter), and
+  # @return (for non-void functions).
+  # style: "doxygen" requires @brief/@param/@return;
+  #        "javadoc" same tags;
+  #        "any"     accepts any non-empty comment (no tag check).
+  function_doc_header:
+    enabled: false          # opt-in; requires existing code to be updated
+    severity: warning
+    require_brief: true
+    require_param: true
+    require_return: true
+    style: doxygen
+
+  # -----------------------------------------------------------------------
+  # Minimum assert() calls per function (JPL Power of Ten Rule 5, #225)
+  # -----------------------------------------------------------------------
+  # Every non-trivial function must contain at least min_asserts calls to
+  # assert() (or a project-defined assert macro).  Functions shorter than
+  # min_function_lines are exempt, as are functions in exempt_functions.
+  assert_density:
+    enabled: false          # opt-in; off by default
+    severity: info
+    min_asserts: 1          # minimum assert() calls per qualifying function
+    min_function_lines: 10  # skip functions with fewer lines than this
+    exempt_functions: []    # regex patterns for exempt function names
+
+  # -----------------------------------------------------------------------
+  # Null statements must be on their own line with a comment (JSF Rule 192)
+  # -----------------------------------------------------------------------
+  # Flags: (1) control-flow expressions with ; on the same line (while(x);),
+  # and (2) standalone ';' on its own line without an explanatory comment.
+  null_statement_comment:
+    enabled: true
+    severity: warning
+
+  # -----------------------------------------------------------------------
+  # Blank line required after the local variable declaration block (LK-8)
+  # -----------------------------------------------------------------------
+  # Within each function body, the first executable statement must be
+  # preceded by at least one blank line after the last local variable
+  # declaration.  Functions with no declarations are not affected.
+  declaration_spacing:
+    enabled: false          # opt-in; disabled by default
+    severity: info
+
+  # -----------------------------------------------------------------------
+  # Maximum lines per source file (ESA/industry practice, issue #232)
+  # -----------------------------------------------------------------------
+  # Source files exceeding max_lines total lines are flagged.  Optionally
+  # blank lines and/or comment-only lines can be excluded from the count.
+  file_length:
+    enabled: true
+    severity: warning
+    max_lines: 500          # industry common defaults: 300–1000
+    count_blank_lines: true
+    count_comment_lines: true
+
+  # -----------------------------------------------------------------------
+  # Reserved C/POSIX standard header filename (CERT PRE04-C, issue #230)
+  # -----------------------------------------------------------------------
+  # A project source file must not share its basename with a standard C or
+  # POSIX header (e.g. string.h, stdio.h) because #include "string.h" would
+  # then include the local file instead of the system header.
+  reserved_header_name:
+    enabled: true
+    severity: error
+    extra_reserved: []      # additional project-specific names to reserve
 
 # --- Reserved / banned identifier names ---
 # Checks that no declared variable, function, macro, or constant name
@@ -619,6 +870,38 @@ ignore:
   files:
     - "stm32f4xx_hal_*.c"
     - "stm32f4xx_hal_*.h"
+
+# --- Identifier naming constraints ---
+# Cross-category rules governing identifier length and character constraints.
+# These complement the per-category length limits in variables/functions/etc.
+naming:
+  # -----------------------------------------------------------------------
+  # Min/max identifier length across all categories (ESA-R-7, JSF Rule 45)
+  # -----------------------------------------------------------------------
+  # Enforces a project-wide minimum and maximum identifier length applied
+  # uniformly across variables, functions, macros, and type names.
+  # short exempt_names (i, j, k, …) are always allowed as loop counters.
+  identifier_length:
+    enabled: false          # opt-in; off by default
+    severity: warning
+    min_length: 3           # ESA-R-7 default; set to 0 to disable min check
+    max_length: 31          # JSF Rule 45 default; set to 0 to disable max check
+    exempt_names: ["i", "j", "k", "n", "x", "y", "z"]
+    check_variables: true
+    check_functions: true
+    check_macros: true
+    check_types: true
+
+  # -----------------------------------------------------------------------
+  # No single-character identifiers except conventional loop counters (ESA-R-4)
+  # -----------------------------------------------------------------------
+  # Single-character names are ambiguous and non-searchable in code review.
+  # Identifiers in the exempt list (default: i, j, k, n, x, y, z) are
+  # accepted as conventional loop counter abbreviations.
+  no_single_char_identifiers:
+    enabled: false          # opt-in; off by default
+    severity: warning
+    exempt: ["i", "j", "k", "n", "x", "y", "z"]
 
 # --- Sign compatibility (cross-file) ---
 # Check that unsigned literals (e.g. 100U) are not passed to signed parameters

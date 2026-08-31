@@ -8,8 +8,8 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-SUP8-001 | **Version** | 1.1 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-SUP8-001 | **Version** | 1.11 |
+| **Project** | CStyleCheck | **Date** | 2026-07-06 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | SUP.8 |
@@ -20,8 +20,18 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
-| 1.0 | 2026-04-11 | Claude | Initial release |
+| 1.11 | 2026-07-06 | Claude | ASPICE audit — add prerelease_check.sh, check_my_project.bat, DOCKERHUB_README.md to CI list — closes #379 |
+| 1.10 | 2026-07-01 | Claude | v1.6.0 release — update §3.1 scope to v1.6.0; update §3.3 SWE1 ref 2.4→2.5 |
+| 1.9 | 2026-06-27 | Fix §3.3 cross-ref: SWE1 2.2→2.4 (+ any other stale refs fixed) | Dermot Murphy |
+| 1.8 | 2026-06-27 | Claude | ASPICE audit — §3.1 scope v1.2.0→v1.5.0; §3.3 SWE1 ref 1.9→2.2; update Review & Approval dates — closes #321 #323 |
+| 1.7 | 2026-06-18 | Claude | ASPICE audit #254 — sync referenced-document version citations to current versions |
+| 1.6 | 2026-06-04 | Claude | Deep accuracy audit: fix CI-024 workflow filename (rules.yml→cstylecheck_rules.yml), fix §7.5 reference, update SWE1-001 version in §3.3 — resolves issue #163 |
+| 1.5 | 2026-06-04 | Claude | Automated accuracy audit: fix §3.1 version text v1.0.0→v1.2.0, update referenced doc versions — resolves issue #163 |
+| 1.4 | 2026-05-28 | Dermot Murphy | Add CI-034 (wiki_publish.yml) to CI inventory — closes issue #150 |
+| 1.3 | 2026-05-28 | Dermot Murphy | Add CI-032 (CSC-DEV-002 independent review deviation) and CI-033 (CSC-SVD-001) to CI list — issue #61 |
+| 1.2 | 2026-05-28 | Dermot Murphy | Add CI-028 (CSC-DEV-001 deviation document) to CI list — issue #52 |
 | 1.1 | 2026-04-12 | Claude | Updated branching strategy to Git Flow; clarified PR/Issue terminology throughout |
+| 1.0 | 2026-04-11 | Claude | Initial release |
 
 ---
 
@@ -29,7 +39,7 @@
 
 ### 3.1 Purpose
 
-This Configuration Management (CM) Plan defines the processes, tools, methods, and responsibilities used to identify, control, store, and audit all configuration items (CIs) produced during the development and maintenance of **CStyleCheck v1.0.0** — an embedded C naming-convention linter implementing Barr-C:2018 and MISRA-C complementary rules.
+This Configuration Management (CM) Plan defines the processes, tools, methods, and responsibilities used to identify, control, store, and audit all configuration items (CIs) produced during the development and maintenance of **CStyleCheck v1.6.0** — an embedded C naming-convention linter implementing Barr-C:2018 and MISRA-C complementary rules.
 
 This plan satisfies the requirements of **Automotive SPICE® PAM v4.0, SUP.8 — Configuration Management**.
 
@@ -49,9 +59,9 @@ This plan applies to all configuration items produced by the CStyleCheck project
 | Document ID | Title | Version |
 |---|---|---|
 | ASPICE PAM v4.0 | Automotive SPICE Process Assessment Model | 4.0 |
-| CSC-SUP9-001 | CStyleCheck Problem Resolution Management Plan | 1.0 |
-| CSC-SUP10-001 | CStyleCheck Change Request Management Plan | 1.0 |
-| CSC-SWE1-001 | CStyleCheck Software Requirements Specification | 1.0 |
+| CSC-SUP9-001 | CStyleCheck Problem Resolution Management Plan | 1.2 |
+| CSC-SUP10-001 | CStyleCheck Change Request Management Plan | 1.2 |
+| CSC-SWE1-001 | CStyleCheck Software Requirements Specification | 2.5 |
 
 ---
 
@@ -132,10 +142,20 @@ All items in the following table are placed under configuration control.
 | CI-021 | Test stdlib dictionary | `tests/c_stdlib_names.txt` | Test data |
 | CI-022 | Test spell dictionary | `tests/c_spell_dict.txt` | Test data |
 | CI-023 | CI — test workflow | `.github/workflows/cstylecheck_tests.yml` | CI/CD |
-| CI-024 | CI — naming convention workflow | `.github/workflows/rules.yml` | CI/CD |
+| CI-024 | CI — naming convention workflow | `.github/workflows/cstylecheck_rules.yml` | CI/CD |
 | CI-025 | CI — Docker publish workflow | `.github/workflows/docker_publish.yml` | CI/CD |
 | CI-026 | Project README | `README.md` | Documentation |
 | CI-027 | This CM Plan | `CStyleCheck_SUP8_CM_Plan.md` | Documentation |
+| CI-028 | AI Authorship Deviation Record | `docs/aspice/CStyleCheck_DEV001_AI_Authorship_Deviation.md` | Documentation |
+| CI-029 | CI trend-record append script | `scripts/ci/append_trend_record.py` | CI script |
+| CI-030 | CI trend HTML and badge generation script | `scripts/ci/generate_trend.py` | CI script |
+| CI-031 | CI README badge update script | `scripts/ci/update_readme_badge.py` | CI script |
+| CI-032 | Independent Review Deviation Record | `docs/aspice/CStyleCheck_DEV002_Independent_Review_Deviation.md` | Documentation |
+| CI-033 | Software Version Description | `docs/aspice/CStyleCheck_SVD_Software_Version_Description.md` | Documentation |
+| CI-034 | CI — wiki publish workflow | `.github/workflows/wiki_publish.yml` | CI/CD |
+| CI-035 | Pre-release validation script | `scripts/prerelease_check.sh` | CI/CD script |
+| CI-036 | Pre-release validation script (Windows) | `scripts/check_my_project.bat` | CI/CD script |
+| CI-037 | DockerHub repository description | `DOCKERHUB_README.md` | Documentation |
 
 ### 6.2 Identification Scheme
 
@@ -195,7 +215,7 @@ main ──► hotfix/* ──► main ──► tag v1.0.1
 ### 7.5 CI Enforcement
 
 - All merges to `develop` and `main` require CI (`cstylecheck_tests.yml`) to pass
-- The `rules.yml` workflow runs the linter against the project's own source on every commit touching C files, enforcing self-hosting of the tool's own rules
+- The `cstylecheck_rules.yml` workflow runs the linter against the project's own source on every commit touching C files, enforcing self-hosting of the tool's own rules
 - Supporting branches are deleted after merge
 
 > **📋 Note:** The `release/*` branch is the only branch where version-bump commits (`_version.py`, `pyproject.toml`) and release notes updates are permitted outside of `develop`. No new features may be introduced on a `release/*` branch.
@@ -277,7 +297,7 @@ Configuration status shall be accessible at any time via:
 
 Performed prior to each release baseline to verify:
 
-- [ ] All CI-001 to CI-027 items are present and committed
+- [ ] All CI-001 to CI-037 items are present and committed
 - [ ] Version in `_version.py` (CI-002) matches the intended tag
 - [ ] All unit tests pass on Python 3.10, 3.11, 3.12
 - [ ] Naming convention workflow passes on current source
@@ -331,9 +351,9 @@ Performed after tagging to verify:
 
 | Role | Name | Signature / Electronic Approval | Date |
 |---|---|---|---|
-| Author | Claude | Approved | 2026-04-15 |
-| Technical Reviewer | Dermot Murphy | Approved | 2026-04-15 |
-| Quality Assurance | Dermot Murphy | Approved | 2026-04-15 |
-| Approver | Dermot Murphy | Approved | 2026-04-15 |
+| Author | Claude | Approved | 2026-06-27 |
+| Technical Reviewer | Dermot Murphy | Approved | 2026-06-27 |
+| Quality Assurance | Dermot Murphy | Approved | 2026-06-27 |
+| Approver | Dermot Murphy | Approved | 2026-06-27 |
 
 > **Note:** This document is under configuration management (SUP.8). Post-approval changes require a change request (SUP.10) and a new document version.

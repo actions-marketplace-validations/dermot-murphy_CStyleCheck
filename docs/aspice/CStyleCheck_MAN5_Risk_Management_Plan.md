@@ -1,4 +1,4 @@
-# Risk Management Plan
+﻿# Risk Management Plan
 
 *Automotive SPICE® PAM v4.0 | MAN.5 Risk Management*
 
@@ -8,8 +8,8 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-MAN5-001 | **Version** | 1.0 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-MAN5-001 | **Version** | 1.4 |
+| **Project** | CStyleCheck | **Date** | 2026-06-26 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | MAN.5 |
@@ -20,21 +20,25 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
+| 1.4 | 2026-06-26 | Claude | Implement RISK-003 and RISK-005 treatments: add `.github/dependabot.yml` (Dependabot for PyPI and GitHub Actions); add `CONTRIBUTING.md` (community onboarding); update §3 scope to v1.4.1 |
+| 1.3 | 2026-06-18 | Claude | ASPICE audit #254 — sync referenced-document version citations to current versions |
+| 1.2 | 2026-05-28 | Dermot Murphy | RISK-003: add Dependabot; update owner and review date. RISK-005: add CONTRIBUTING.md and AI-reproducibility mitigations; update owner and review date — closes issue #155 |
+| 1.1 | 2026-05-28 | Claude | Reviewed and updated for v1.1.0 release; revision history maintained per ASPICE GP 2.2.4 |
 | 1.0 | 2026-04-12 | Claude | Initial release |
 
 ---
 
 ## 3. Purpose & Scope
 
-This Risk Management Plan defines the risk identification, analysis, treatment, and monitoring approach for **CStyleCheck v1.0.0**. It satisfies **Automotive SPICE® PAM v4.0, MAN.5 — Risk Management**.
+This Risk Management Plan defines the risk identification, analysis, treatment, and monitoring approach for **CStyleCheck v1.4.1**. It satisfies **Automotive SPICE® PAM v4.0, MAN.5 — Risk Management**.
 
 ### 3.1 Referenced Documents
 
 | Document ID | Title | Version |
 |---|---|---|
-| CSC-MAN3-001 | Project Management Plan | 1.0 |
-| CSC-SUP8-001 | Configuration Management Plan | 1.1 |
-| CSC-SUP10-001 | Change Request Management Plan | 1.0 |
+| CSC-MAN3-001 | Project Management Plan | 1.6 |
+| CSC-SUP8-001 | Configuration Management Plan | 1.7 |
+| CSC-SUP10-001 | Change Request Management Plan | 1.2 |
 
 ---
 
@@ -137,12 +141,12 @@ This Risk Management Plan defines the risk identification, analysis, treatment, 
 | **Impact** | 3 (Moderate) — security advisory required; patched release needed |
 | **RPN** | 6 (Medium) |
 | **Treatment Option** | Mitigate |
-| **Treatment Activities** | Pin `pyyaml>=6.0,<7.0` in `pyproject.toml`; use `yaml.safe_load()` (never `yaml.load()`); monitor PyPI security advisories |
+| **Treatment Activities** | Pin `pyyaml>=6.0,<7.0` in `pyproject.toml` (already in place); use `yaml.safe_load()` (never `yaml.load()`); enable GitHub Dependabot for `pyproject.toml` to receive automated CVE alerts; monitor PyPI security advisories; **Implemented (2026-06-26):** `.github/dependabot.yml` committed — weekly automated scan for PyPI (`pyproject.toml`) and GitHub Actions dependencies; alerts delivered as automated PRs |
 | **Residual Likelihood** | 2 |
 | **Residual Impact** | 2 |
 | **Residual RPN** | 4 (Low) |
-| **Owner** | Claude |
-| **Review Date** | Monthly |
+| **Owner** | Dermot Murphy |
+| **Review Date** | 2026-08-28 |
 | **Status** | Released |
 
 ---
@@ -179,12 +183,12 @@ This Risk Management Plan defines the risk identification, analysis, treatment, 
 | **Impact** | 4 (Major) — schedule slip; open Issues unaddressed |
 | **RPN** | 8 (Medium) |
 | **Treatment Option** | Mitigate |
-| **Treatment Activities** | Comprehensive documentation (README, ASPICE doc set) enables knowledge transfer; MIT licence enables community contributions; all work tracked via GitHub Issues for continuity |
+| **Treatment Activities** | Maintain detailed ASPICE documentation set as living knowledge base; all logic AI-assisted (reproducible from prompts and ASPICE docs); publish `CONTRIBUTING.md` to enable community onboarding; MIT licence enables community contributions; all work tracked via GitHub Issues for continuity; **Implemented (2026-06-26):** `CONTRIBUTING.md` committed — covers reporting issues, PR workflow, code style, AI assistance policy, and licence |
 | **Residual Likelihood** | 2 |
 | **Residual Impact** | 3 |
 | **Residual RPN** | 6 (Medium) |
-| **Owner** | Claude |
-| **Review Date** | Per milestone |
+| **Owner** | Dermot Murphy |
+| **Review Date** | 2026-08-28 |
 | **Status** | Released |
 
 ---

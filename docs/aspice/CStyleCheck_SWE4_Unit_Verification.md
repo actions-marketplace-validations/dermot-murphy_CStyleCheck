@@ -1,4 +1,4 @@
-# Software Unit Verification Specification
+﻿# Software Unit Verification Specification
 
 *Automotive SPICE® PAM v4.0 | SWE.4 Software Unit Verification*
 
@@ -8,11 +8,13 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-SWE4-001 | **Version** | 1.0 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-SWE4-001 | **Version** | 1.20 |
+| **Project** | CStyleCheck | **Date** | 2026-07-06 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | SWE.4 |
+
+> **Note — Reviewer independence (CSC-DEV-002):** The Reviewer and Approver are the same person (Dermot Murphy). This is accepted under deviation record **CSC-DEV-002** (`docs/aspice/CStyleCheck_DEV002_Independent_Review_Deviation.md`) on the basis that CStyleCheck has a single human team member.
 
 ---
 
@@ -20,13 +22,32 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
+| 1.20 | 2026-07-06 | Claude | ASPICE audit — update §6 per-row test counts for 8 modules (+56 total): test_defines.py 22→30, test_yoda_condition.py 37→46, test_inline_suppression.py 15→24, test_constant_comparison.py 21→27, test_parameter_prefix.py 47→51, test_pointer_prefix_fix.py 10→20, test_print_summary.py 7→11, test_unsigned_suffix_signed_params.py 9→15; update §3.1 refs (SWE1 2.4→2.6, SWE3 1.15→1.16, SWE5 1.11→1.14); add SWE1-091/092/093 to §7 traceability — closes #374 |
+| 1.19 | 2026-07-06 | Claude | v1.6.0 RC — update test total 1223→1279 (+56 across 8 modules: yoda_condition 37→46, inline_suppression 15→24, constant_comparison 21→27, defines 22→30, parameter_prefix 47→51, pointer_prefix_fix 10→20, print_summary 7→11, unsigned_suffix_signed_params 9→15); update coverage comment; update §5.5 SVD→1.22 |
+| 1.18 | 2026-07-01 | Claude | v1.6.0 — add test_constant_comparison.py (21 tests), test_unsigned_suffix_signed_params.py (9 tests), test_pointer_prefix_fix.py (10 tests); update §3.1 refs (SWE1 2.4→2.5, SWE5 1.11→1.12); update test total 1183→1223, modules 50→53; update coverage comment — closes #339 #340 #341 |
+| 1.17 | 2026-06-27 | Fix §3.1 cross-refs: SWE1 2.3→2.4, SWE3 1.14→1.15, SWE5 1.9→1.11 | Dermot Murphy |
+| 1.16 | 2026-06-27 | Fix §3.1 cross-refs: SWE1 2.1→2.3, SWE3 1.12→1.14 | Dermot Murphy |
+| 1.15 | 2026-06-27 | Claude | ASPICE audit — fix §4.2 test count 1041→1183; fix §6 COMP-01→COMP-05f/h for 11 modules; update coverage ref to v1.5.0; update Review & Approval dates — closes #317 #323 |
+| 1.14 | 2026-06-26 | Claude | ASPICE audit — fix §3 scope text (v1.2.x→v1.5.0); update §3.1 refs (SWE1 1.9→2.1, SWE3 1.10→1.12, SWE5 1.5→1.9); correct §6 total 52→50 modules; update test_null_statement_comment count 10→11 and total 1182→1183 — closes #305 #306 #309 #312 |
+| 1.13 | 2026-06-26 | Claude | Add NR-004 tests (12 tests, test_misra_rules.py 52→64), typedef-alias tests (6 tests, test_defines.py 16→22), test_print_summary.py (7 tests, new); update §5 and §6 totals 1157→1182 — issues #279 #278 #272 #244 |
+| 1.12 | 2026-06-18 | Claude | v1.4.1 patch (issue #273) — add 5 regression tests to `test_parameter_prefix.py` (42→47); update §6 total 1152→1157 |
+| 1.11 | 2026-06-18 | Claude | ASPICE audit #254 — update §6 test total 1143→1152 (49 modules) |
+| 1.10 | 2026-06-08 | Claude | ASPICE audit #238 — correct CSC-SWE3 version reference 1.8→1.9 in §3.1 |
+| 1.9 | 2026-06-08 | Claude | Add 11 new test modules (102 tests) for issues #221–#232; update §6 totals; update §7 traceability |
+| 1.8 | 2026-06-05 | Claude | CSC-AUD-005 corrective action — fix factual errors identified in audit |
+| 1.6 | 2026-06-04 | Claude | Automated accuracy audit: add §6 rows for test_preprocessor.py/test_comment_ratio/test_declared_not_defined/test_update_config/test_config_loading; update total 786→965; fix section header counts (§5.4/§5.6/§5.12/§5.13); update referenced doc versions; fix §3 version text; update coverage note — resolves issue #163 |
+| 1.5 | 2026-05-28 | Claude | Add §5.7b whitespace_ratio test catalogue (27 tests); fix §5.1 count 32→35; add §6 row for test_whitespace_ratio.py; update total 759→786; update §7 traceability — closes issues #148 #157 |
+| 1.4 | 2026-05-28 | Dermot Murphy | §4.2: implement subprocess coverage via COVERAGE_PROCESS_START + sitecustomize.py; raise CI gate to 85% combined; actual v1.2.0 CI: 89.8% stmt, 87.31% combined — closes issue #54 |
+| 1.3 | 2026-05-28 | Dermot Murphy | Populate §6 results table: actual test counts, all PASS; coverage 86% stmt / N/A branch (v1.1.0 CI); add 5 missing test modules — closes issue #53 |
+| 1.2 | 2026-05-28 | Dermot Murphy | Add CSC-DEV-002 deviation footnote to §1 — closes issue #61 |
+| 1.1 | 2026-05-28 | Claude | Added static type check (mypy --ignore-missing-imports) and lint check (ruff) as verification methods in §4.1; updated CI workflow reference |
 | 1.0 | 2026-04-12 | Claude | Initial release |
 
 ---
 
 ## 3. Purpose & Scope
 
-This specification defines the unit verification strategy, coverage criteria, and test case catalogue for **CStyleCheck v1.0.0**. It satisfies **Automotive SPICE® PAM v4.0, SWE.4 — Software Unit Verification**.
+This specification defines the unit verification strategy, coverage criteria, and test case catalogue for **CStyleCheck v1.5.0**. It satisfies **Automotive SPICE® PAM v4.0, SWE.4 — Software Unit Verification**.
 
 Unit verification covers both dynamic testing (pytest test suite) and static verification (naming convention self-check via `rules.yml` CI workflow).
 
@@ -34,10 +55,10 @@ Unit verification covers both dynamic testing (pytest test suite) and static ver
 
 | Document ID | Title | Version |
 |---|---|---|
-| CSC-SWE1-001 | CStyleCheck Software Requirements Specification | 1.0 |
-| CSC-SWE3-001 | CStyleCheck Software Detailed Design | 1.0 |
-| CSC-SWE5-001 | CStyleCheck Software Integration Test Specification | 1.0 |
-| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.1 |
+| CSC-SWE1-001 | CStyleCheck Software Requirements Specification | 2.6 |
+| CSC-SWE3-001 | CStyleCheck Software Detailed Design | 1.16 |
+| CSC-SWE5-001 | CStyleCheck Software Integration Test Specification | 1.14 |
+| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.9 |
 
 ---
 
@@ -48,21 +69,25 @@ Unit verification covers both dynamic testing (pytest test suite) and static ver
 | Method | Scope | Tool |
 |---|---|---|
 | Dynamic unit testing | All COMP-05 rule-check methods; COMP-02, COMP-03, COMP-04, COMP-06, COMP-07 utility functions | pytest 7+ |
-| Static verification (naming convention) | `cstylecheck.py` source file itself | `cstylecheck` self-hosted via `rules.yml` CI |
-| Code coverage measurement | `src/cstylecheck.py` | pytest-cov |
+| Static verification (naming convention) | `src/cstylecheck/` package source files | `cstylecheck` self-hosted via `rules.yml` CI |
+| Static type check | `src/cstylecheck/` — import and inferred-type check (`--ignore-missing-imports`; `--strict` deferred until codebase is annotated) | mypy 1.0+ |
+| Lint check | `src/` and `tests/` — style and common error detection | ruff 0.1+ |
+| Code coverage measurement | `src/cstylecheck/` | pytest-cov |
 | Code review / inspection | `SignChecker` try/finally pattern (SWE1-053); `_data_file()` fallback logic | Manual review during PR |
 
 ### 4.2 Coverage Criteria
 
-| Coverage Type | Long-term Target | Current Baseline (v1.1) | CI Gate | Rationale |
+| Coverage Type | Long-term Target | v1.1.0 Baseline (stmt-only, excl. subprocess) | CI Gate | Rationale |
 |---|---|---|---|---|
-| Statement coverage | ≥ 90% | ~72% | ≥ 72% (see note) | All reachable statements exercised |
-| Branch coverage | ≥ 85% | ~68% | reported only | All major decision branches covered |
+| Statement coverage | ≥ 90% | 89.8% (1,694 stmts, 172 missed — v1.2.0 CI with subprocess) | ≥ 85% combined (see note) | All reachable statements exercised; subprocess coverage via `COVERAGE_PROCESS_START` |
+| Branch coverage | ≥ 85% | 87.31% combined stmt+branch (874 branch pts, 96 partial — v1.2.0 CI) | ≥ 85% combined (see note) | All major decision branches covered |
 | Function coverage | 100% of public functions | ~95% | reported only | Every unit invoked at least once |
 
-Coverage is measured per CI run on Python 3.11 and reported via `coverage.xml` artefact (uploaded as a GitHub Actions artefact).
+Coverage is measured per CI run on all three Python matrix versions (3.10, 3.11, 3.12) and reported via `coverage.xml` artefact (uploaded as a GitHub Actions artefact, Python 3.11 build).
 
-> **Coverage gap note (open action):** The `main()` function and CLI output helpers (`_violations_to_json`, `_violations_to_sarif`, `write_baseline`, `load_baseline`, `print_summary`) account for approximately 18 percentage points of the 90%–72% gap. These are exercised exclusively through the `test_cli.py` subprocess tests, which spawn child Python processes that `pytest-cov` cannot instrument by default. The CI gate is set at 72% (the current measured baseline) to catch any regressions. It will be raised to 90% once subprocess coverage instrumentation is added via `COVERAGE_PROCESS_START` and `sitecustomize.py` (see [pytest-cov subprocess support](https://pytest-cov.readthedocs.io/en/latest/subprocess-support.html)).
+**CI gate (from v1.2.0+):** `--cov-fail-under=85 --cov-branch` applied across all 1279 tests including `test_cli.py` subprocess calls. Combined coverage 87.31% ≥ 85% gate ✅
+
+> **Subprocess coverage implementation (issue #54 — resolved):** From v1.2.0 CI onwards, `COVERAGE_PROCESS_START` and `sitecustomize.py` subprocess instrumentation are enabled in `cstylecheck_tests.yml`. This allows `test_cli.py` to contribute coverage of `main()` and the CLI output helpers (`_violations_to_json`, `_violations_to_sarif`, `write_baseline`, `load_baseline`, `print_summary`), which previously accounted for ~14% of unmeasured statements (the v1.1.0 measured baseline was 86% statement-only, excluding subprocess invocations). The CI gate has been raised from 72% statement-only to 85% combined statement + branch. The long-term targets of ≥ 90% statement and ≥ 85% branch remain; the 85% combined gate will be reviewed once the first post-instrumentation CI run reports actual figures (baseline reference: 1279 tests as of v1.6.0).
 
 ### 4.3 Test Infrastructure
 
@@ -89,12 +114,12 @@ Key harness functions:
 
 ### 4.4 Naming Convention Self-Check (Static Verification)
 
-CStyleCheck enforces its own naming rules on `cstylecheck.py` via the `rules.yml` CI workflow. This constitutes a static verification pass satisfying SWE.4 BP3.
+CStyleCheck enforces its own naming rules on `src/cstylecheck/` via the `rules.yml` CI workflow. This constitutes a static verification pass satisfying SWE.4 BP3.
 
 | Verification Item | Evidence |
 |---|---|
-| Zero `error`-level violations on `cstylecheck.py` | `rules.yml` CI job PASS |
-| Workflow trigger | Every push that modifies `src/cstylecheck.py` |
+| Zero `error`-level violations on `src/cstylecheck/` | `rules.yml` CI job PASS |
+| Workflow trigger | Every push that modifies `src/cstylecheck/` |
 
 ---
 
@@ -104,7 +129,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.1 Variable Rules — `test_variables.py` (32 tests)
+### 5.1 Variable Rules — `test_variables.py` (43 tests)
 
 | TC-ID | Test Name | Rule Verified | Pass Condition |
 |---|---|---|---|
@@ -140,7 +165,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.3 Constant and Macro Rules — `test_defines.py` (16 tests)
+### 5.3 Constant and Macro Rules — `test_defines.py` (30 tests)
 
 | TC-ID | Test Name | Rule Verified | Pass Condition |
 |---|---|---|---|
@@ -151,10 +176,16 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 | UV-DEF-005 | `test_exempt_pattern_skipped` | `constant.case` | `__FILE__` exempt via `exempt_patterns` |
 | UV-DEF-006 | `test_constant_min_length` | `constant.min_length` | Violation for constant name below min |
 | UV-DEF-007 | `test_constant_max_length` | `constant.max_length` | Violation for constant name above max |
+| UV-DEF-008 | `test_typedef_alias_lower_snake_no_constant_case` | `constant.case` | `#define module_my_type_t uint8_t` NOT flagged when suffix enabled (issue #272) |
+| UV-DEF-009 | `test_typedef_alias_mixed_case_no_constant_case` | `constant.case` | Mixed-case typedef alias NOT flagged for `constant.case` |
+| UV-DEF-010 | `test_regular_constant_still_flagged` | `constant.case` | Non-`_t` constant with wrong case still flagged |
+| UV-DEF-011 | `test_function_like_macro_still_flagged` | `macro.case` | Function-like `_t`-suffixed macro still flagged |
+| UV-DEF-012 | `test_typedef_suffix_disabled_alias_flagged` | `constant.case` | When suffix disabled, `_t`-named constant IS flagged |
+| UV-DEF-013 | `test_typedef_alias_uppercase_t_suffix` | `constant.case` | Suffix match is case-insensitive (`_T` also exempted) |
 
 ---
 
-### 5.4 Type Rules — `test_typedefs.py` (8), `test_enums.py` (11), `test_structs.py` (7)
+### 5.4 Type Rules — `test_typedefs.py` (8), `test_enums.py` (11), `test_structs.py` (12)
 
 | TC-ID | Test Name | Rule Verified | Pass Condition |
 |---|---|---|---|
@@ -180,7 +211,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.6 Miscellaneous Rules — `test_misc.py` (23), `test_misc_improvements.py` (65), `test_block_comment_spacing.py`
+### 5.6 Miscellaneous Rules — `test_misc.py` (28), `test_misc_improvements.py` (77), `test_block_comment_spacing.py`
 
 | TC-ID | Test Name | Rule Verified | Pass Condition |
 |---|---|---|---|
@@ -194,7 +225,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.7 Yoda Conditions — `test_yoda_condition.py` (37 tests)
+### 5.7 Yoda Conditions — `test_yoda_condition.py` (46 tests)
 
 | TC-ID | Test Name | Rule Verified | Pass Condition |
 |---|---|---|---|
@@ -203,6 +234,40 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 | UV-YOD-003 | `test_literal_on_left_passes` | `misc.yoda_condition` | `if (0 == count)` passes |
 | UV-YOD-004 | `test_two_variables_exempt` | `misc.yoda_condition` | `if (a == b)` no violation |
 | UV-YOD-005 | `test_not_equal_enforced` | `misc.yoda_condition` | `!= NULL` also enforced |
+
+---
+
+### 5.7b Whitespace Ratio Rules — `test_whitespace_ratio.py` (27 tests)
+
+| TC-ID | Test Name | Rule Verified | Pass Condition |
+|---|---|---|---|
+| UV-WSR-001 | `test_disabled_produces_no_violation` | `misc.whitespace_ratio` | No violation when rule disabled |
+| UV-WSR-002 | `test_zero_blank_lines_raises_violation` | `misc.whitespace_ratio` | Violation when ratio = 0 |
+| UV-WSR-003 | `test_sufficient_blank_lines_passes` | `misc.whitespace_ratio` | No violation when ratio above warning threshold |
+| UV-WSR-004 | `test_exactly_at_warning_threshold_passes` | `misc.whitespace_ratio` | No violation at exactly the warning threshold |
+| UV-WSR-005 | `test_one_below_warning_threshold_fails` | `misc.whitespace_ratio` | Warning violation when one blank line below threshold |
+| UV-WSR-006 | `test_single_violation_emitted_per_file` | `misc.whitespace_ratio` | Exactly one violation emitted per non-compliant file |
+| UV-WSR-007 | `test_below_error_threshold_emits_error` | `misc.whitespace_ratio` | Error severity when ratio below error threshold |
+| UV-WSR-008 | `test_between_thresholds_emits_configured_severity` | `misc.whitespace_ratio` | Configured severity used when between thresholds |
+| UV-WSR-009 | `test_custom_severity_used_between_thresholds` | `misc.whitespace_ratio` | Custom severity key respected |
+| UV-WSR-010 | `test_exactly_at_error_threshold_is_warning_not_error` | `misc.whitespace_ratio` | Warning (not error) when exactly at error threshold |
+| UV-WSR-011 | `test_fewer_than_min_lines_skipped` | `misc.whitespace_ratio` | No violation when code lines below minimum |
+| UV-WSR-012 | `test_exactly_min_lines_is_checked` | `misc.whitespace_ratio` | Checked when code lines equals minimum |
+| UV-WSR-013 | `test_custom_min_lines` | `misc.whitespace_ratio` | Custom min_lines config respected |
+| UV-WSR-014 | `test_comments_do_not_contribute_to_min_lines` | `misc.whitespace_ratio` | Comment lines excluded from minimum code-line count |
+| UV-WSR-015 | `test_blank_lines_in_block_header_not_counted` | `misc.whitespace_ratio` | Header blank lines excluded from ratio |
+| UV-WSR-016 | `test_blank_lines_between_header_comments_not_counted` | `misc.whitespace_ratio` | Header region blank lines excluded |
+| UV-WSR-017 | `test_blank_lines_in_body_counted_after_header` | `misc.whitespace_ratio` | Body blank lines counted correctly |
+| UV-WSR-018 | `test_line_comments_excluded_from_denominator` | `misc.whitespace_ratio` | Line comment lines excluded from code count |
+| UV-WSR-019 | `test_block_comments_excluded_from_denominator` | `misc.whitespace_ratio` | Block comment lines excluded from code count |
+| UV-WSR-020 | `test_code_line_with_trailing_comment_counts_as_code` | `misc.whitespace_ratio` | Trailing-comment lines count as code |
+| UV-WSR-021 | `test_mixed_blanks_and_comments_ratio_correct` | `misc.whitespace_ratio` | Correct ratio when mix of blank, comment, code lines |
+| UV-WSR-022 | `test_message_contains_ratio_and_counts` | `misc.whitespace_ratio` | Violation message includes ratio and counts |
+| UV-WSR-023 | `test_message_mentions_threshold` | `misc.whitespace_ratio` | Violation message includes threshold value |
+| UV-WSR-024 | `test_message_says_error_threshold_when_below_error` | `misc.whitespace_ratio` | Message identifies error threshold when below it |
+| UV-WSR-025 | `test_violation_reported_at_line_1` | `misc.whitespace_ratio` | Violation always at line 1 |
+| UV-WSR-026 | `test_singular_blank_line_grammar` | `misc.whitespace_ratio` | "1 blank line" (not "1 blank lines") in message |
+| UV-WSR-027 | `test_plural_blank_lines_grammar` | `misc.whitespace_ratio` | "N blank lines" (plural) in message |
 
 ---
 
@@ -250,7 +315,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.12 CLI and Integration — `test_cli.py` (29 tests)
+### 5.12 CLI and Integration — `test_cli.py` (43 tests)
 
 | TC-ID | Test Name | Unit Verified | Pass Condition |
 |---|---|---|---|
@@ -267,7 +332,7 @@ Tests are organised by test module. Each module maps to one or more COMP-05 sub-
 
 ---
 
-### 5.13 Bug-Fix and Improvement Tests — `test_improvements.py` (63), `test_barr_c.py` (42), `test_eof_comment.py`, `test_copyright_header.py`, `test_parameter_prefix.py`, `test_exclusions.py`
+### 5.13 Bug-Fix and Improvement Tests — `test_improvements.py` (67), `test_barr_c.py` (42), `test_eof_comment.py`, `test_copyright_header.py`, `test_parameter_prefix.py`, `test_exclusions.py`
 
 These test modules provide regression coverage for previously fixed bugs and new rules. Key cases:
 
@@ -281,10 +346,10 @@ These test modules provide regression coverage for previously fixed bugs and new
 
 ---
 
-### 5.14 MISRA C Rule Tests — `test_misra_rules.py` (52 tests)
+### 5.14 MISRA C Rule Tests — `test_misra_rules.py` (64 tests)
 
-Added in v1.1. Covers three new MISRA C:2012/2023 Required rules and one BUG-004 regression.
-ASPICE traceability: SWE1-MISRA-001 (Rule 7.3), SWE1-MISRA-002 (Rule 7.1), SWE1-MISRA-003 (Rule 4.2).
+Covers four MISRA C:2012/2023 Required rules and one BUG-004 regression.
+ASPICE traceability: SWE1-MISRA-001 (Rule 7.3), SWE1-MISRA-002 (Rule 7.1), SWE1-MISRA-003 (Rule 4.2), SWE1-MISRA-004 (Rule 4.1).
 
 | TC-ID | MISRA Rule | SWE4 Test ID range | Verified Behaviour |
 |---|---|---|---|
@@ -292,8 +357,23 @@ ASPICE traceability: SWE1-MISRA-001 (Rule 7.3), SWE1-MISRA-002 (Rule 7.1), SWE1-
 | SWE4-TC-7.1-001 to 7.1-016 | Rule 7.1 (octal constants) | 16 tests | Flags `010`, `07`, `0777U`; passes `0`, `0U`, `0x08`, `0.5` |
 | SWE4-TC-4.2-001 to 4.2-017 | Rule 4.2 (trigraphs) | 17 tests | Flags all 9 trigraph sequences; passes `??` alone, `?` alone |
 | BUG-004-001 to 004-004 | Yoda negative literal | 4 tests | `x == -1` message shows `-1`, not `1` |
+| SWE4-TC-4.1-001 to 4.1-012 | Rule 4.1 (non-ASCII source) | 12 tests | Flags non-ASCII bytes, BOM, control chars; passes tab/LF/CR/printable ASCII; exempt_string_literals option works |
 
-Each test class verifies: positive detection, negative non-detection, disabled-rule suppression, configurable severity, violation message content, and (for trigraphs) accurate line number.
+Each test class verifies: positive detection, negative non-detection, disabled-rule suppression, configurable severity, and violation message content.
+
+### 5.15 Print Summary Per-File Breakdown — `test_print_summary.py` (11 tests)
+
+Added in v1.13. Covers the per-file breakdown extension to `print_summary()` (SWE1-089, issue #278).
+
+| TC-ID | Test Name | Verified Behaviour |
+|---|---|---|
+| UV-SUM-001 | `test_per_file_section_present` | Output contains "Per-file breakdown" header |
+| UV-SUM-002 | `test_files_with_errors_count` | Unique files with errors counted correctly |
+| UV-SUM-003 | `test_files_with_warnings_count` | Files with warnings (no errors) in own bucket |
+| UV-SUM-004 | `test_files_clean_count` | Files with no violations shown as clean |
+| UV-SUM-005 | `test_all_clean` | Zero violations: all files clean |
+| UV-SUM-006 | `test_file_counted_once_highest_severity` | File with errors+warnings counted only under errors |
+| UV-SUM-007 | `test_no_files_checked_no_breakdown` | No breakdown section emitted when files_checked = 0 |
 | UV-IMP-006 | `function.static_prefix` | `prv_` prefix enforced on static functions |
 | UV-IMP-007 | `constant.min_length` / `macro.min_length` | Previously undocumented; now implemented |
 | UV-IMP-008 | Baseline suppression | Known violations suppressed; new ones reported |
@@ -304,32 +384,65 @@ Each test class verifies: positive detection, negative non-detection, disabled-r
 
 | Test Module | Tests | Pass | Fail | Coverage Contribution |
 |---|---|---|---|---|
-| `test_variables.py` | 32 | \<N\> | \<N\> | `_check_variables` |
-| `test_functions.py` | 14 | \<N\> | \<N\> | `_check_functions` |
-| `test_defines.py` | 16 | \<N\> | \<N\> | `_check_defines` |
-| `test_typedefs.py` | 8 | \<N\> | \<N\> | `_check_typedefs` |
-| `test_enums.py` | 11 | \<N\> | \<N\> | `_check_enums` |
-| `test_structs.py` | 7 | \<N\> | \<N\> | `_check_structs` |
-| `test_include_guards.py` | 8 | \<N\> | \<N\> | `_check_include_guard` |
-| `test_misc.py` | 23 | \<N\> | \<N\> | `_check_misc` |
-| `test_misc_improvements.py` | 65 | \<N\> | \<N\> | `_check_misc`, improvements |
-| `test_yoda_condition.py` | 37 | \<N\> | \<N\> | `_check_yoda` |
-| `test_reserved_name.py` | 40 | \<N\> | \<N\> | `_check_reserved_names` |
-| `test_spell_check.py` | 9 | \<N\> | \<N\> | `_check_spelling` |
-| `test_sign_compatibility.py` | 7 | \<N\> | \<N\> | `SignChecker` |
-| `test_dictionaries.py` | 32 | \<N\> | \<N\> | COMP-03 |
-| `test_improvements.py` | 63 | \<N\> | \<N\> | Multiple |
-| `test_barr_c.py` | 42 | \<N\> | \<N\> | Multiple |
-| `test_cli.py` | 29 | \<N\> | \<N\> | COMP-01, COMP-07 |
-| `test_exclusions.py` | \<N\> | \<N\> | \<N\> | COMP-02 |
-| `test_eof_comment.py` | \<N\> | \<N\> | \<N\> | `_check_eof_comment` |
-| `test_copyright_header.py` | \<N\> | \<N\> | \<N\> | `_check_copyright_header` |
-| `test_parameter_prefix.py` | \<N\> | \<N\> | \<N\> | `_check_variables` |
-| `test_misra_rules.py` | 52 | 52 | 0 | `_check_lowercase_l_suffix`, `_check_octal_constants`, `_check_trigraphs`, `_check_yoda` |
-| **Total** | **692** | **692** | **0** | All rules covered |
+| `test_variables.py` | 43 | 43 | 0 | `_check_variables` |
+| `test_functions.py` | 14 | 14 | 0 | `_check_functions` |
+| `test_defines.py` | 30 | 30 | 0 | `_check_defines` (incl. typedef-alias exemption) |
+| `test_typedefs.py` | 8 | 8 | 0 | `_check_typedefs` |
+| `test_enums.py` | 11 | 11 | 0 | `_check_enums` |
+| `test_structs.py` | 12 | 12 | 0 | `_check_structs` |
+| `test_include_guards.py` | 8 | 8 | 0 | `_check_include_guard` |
+| `test_misc.py` | 28 | 28 | 0 | `_check_misc` |
+| `test_misc_improvements.py` | 77 | 77 | 0 | `_check_misc`, improvements |
+| `test_yoda_condition.py` | 46 | 46 | 0 | `_check_yoda` |
+| `test_whitespace_ratio.py` | 27 | 27 | 0 | `_check_whitespace_ratio` |
+| `test_reserved_name.py` | 40 | 40 | 0 | `_check_reserved_names` |
+| `test_spell_check.py` | 9 | 9 | 0 | `_check_spelling` |
+| `test_sign_compatibility.py` | 7 | 7 | 0 | `SignChecker` |
+| `test_dictionaries.py` | 32 | 32 | 0 | COMP-03 |
+| `test_improvements.py` | 67 | 67 | 0 | Multiple |
+| `test_barr_c.py` | 42 | 42 | 0 | Multiple |
+| `test_cli.py` | 43 | 43 | 0 | COMP-01, COMP-07 |
+| `test_exclusions.py` | 28 | 28 | 0 | COMP-02 |
+| `test_eof_comment.py` | 33 | 33 | 0 | `_check_eof_comment` |
+| `test_copyright_header.py` | 55 | 55 | 0 | `_check_copyright_header` |
+| `test_parameter_prefix.py` | 51 | 51 | 0 | `_check_variables` |
+| `test_misra_rules.py` | 64 | 64 | 0 | `_check_lowercase_l_suffix`, `_check_octal_constants`, `_check_trigraphs`, `_check_non_ascii_source`, `_check_yoda` |
+| `test_block_comment_spacing.py` | 29 | 29 | 0 | `_check_block_comment_spacing` |
+| `test_workflow_config.py` | 16 | 16 | 0 | CI workflow configuration regression |
+| `test_github_annotations.py` | 8 | 8 | 0 | GitHub Actions annotation output |
+| `test_case_patterns.py` | 6 | 6 | 0 | Case pattern matching (`_check_case_patterns`) |
+| `test_thread_safe_globals.py` | 4 | 4 | 0 | Thread-safe global state (`C_KEYWORDS`, `C_STDLIB_NAMES`) |
+| `test_preprocessor.py` | 76 | 76 | 0 | COMP-04 (`preprocessor.py`) — strip_comments, strip_strings, preprocess, build_line_map, brace depths, extract_comments |
+| `test_comment_ratio.py` | 24 | 24 | 0 | `_check_comment_ratio` |
+| `test_declared_not_defined.py` | 39 | 39 | 0 | `DeclaredNotDefinedChecker` |
+| `test_config_loading.py` | 13 | 13 | 0 | COMP-02 (`load_config` — UTF-8, missing file, YAML errors) |
+| `test_update_config.py` | 27 | 27 | 0 | COMP-02 (`_deep_merge`) |
+| `test_inline_suppression.py` | 24 | 24 | 0 | COMP-04 (`parse_inline_suppressions`) |
+| `test_fix_mode.py` | 11 | 11 | 0 | COMP-08 (`apply_fixes`, `unified_diff`) |
+| `test_init_wizard.py` | 15 | 15 | 0 | COMP-09 (`run_wizard`, `run_preset`) |
+| `test_per_dir_config.py` | 15 | 15 | 0 | COMP-10 (`resolve_per_dir_config`) |
+| `test_html_report.py` | 20 | 20 | 0 | COMP-07 (`_violations_to_html`) |
+| `test_function_length.py` | 11 | 11 | 0 | COMP-05f (`_check_function_length`) |
+| `test_function_doc_header.py` | 12 | 12 | 0 | COMP-05f (`_check_function_doc_header`) |
+| `test_assert_density.py` | 8 | 8 | 0 | COMP-05f (`_check_assert_density`) |
+| `test_null_statement_comment.py` | 11 | 11 | 0 | COMP-05f (`_check_null_statement_comment`) |
+| `test_declaration_spacing.py` | 8 | 8 | 0 | COMP-05f (`_check_declaration_spacing`) |
+| `test_file_length.py` | 8 | 8 | 0 | COMP-05f (`_check_file_length`) |
+| `test_reserved_header_name.py` | 10 | 10 | 0 | COMP-05f (`_check_reserved_header_name`) |
+| `test_macro_trailing_semicolon.py` | 9 | 9 | 0 | COMP-05f (`_check_macro_trailing_semicolon`) |
+| `test_macro_multistatement_wrapper.py` | 9 | 9 | 0 | COMP-05f (`_check_macro_multistatement_wrapper`) |
+| `test_identifier_length.py` | 10 | 10 | 0 | COMP-05h (`_check_identifier_length`) |
+| `test_no_single_char_identifiers.py` | 8 | 8 | 0 | COMP-05h (`_check_no_single_char_identifiers`) |
+| `test_print_summary.py` | 11 | 11 | 0 | `output.print_summary` (per-file breakdown) |
+| `test_constant_comparison.py` | 27 | 27 | 0 | COMP-05f (`_check_constant_comparison`) |
+| `test_unsigned_suffix_signed_params.py` | 15 | 15 | 0 | COMP-05f (`_check_misc` signed-param exemption) |
+| `test_pointer_prefix_fix.py` | 20 | 20 | 0 | `fixer._fix_pointer_prefix`, `fixer.fix_pointer_prefix_in_header` |
+| **Total** | **1279** | **1279** | **0** | All rules covered — 53 modules |
 
-**Statement Coverage (unit tests only, excl. test_cli.py):** ~72% (baseline v1.1; see §4.2 for gap explanation)
-**Branch Coverage (unit tests only):** ~68%
+**Statement Coverage (v1.1.0 CI — unit tests excl. subprocess):** 86% (1,694 statements, 243 missed)
+**Statement Coverage (v1.5.0 CI — 1183 tests incl. subprocess):** 89.8% (1,694 statements, 172 missed)
+**Branch Coverage (v1.5.0 CI — 1183 tests incl. subprocess):** 874 branch points, 96 partial → **87.31% combined statement + branch** ≥ 85% gate ✅ (issue #54 resolved)
+**v1.6.0 CI coverage:** to be measured after first CI run (expected ≥ 85% combined gate).
 
 **Static Verification (rules.yml):** PASS
 
@@ -341,10 +454,11 @@ Each test class verifies: positive detection, negative non-detection, disabled-r
 |---|---|---|
 | SWE1-017 to SWE1-029 | Variable rules | UV-VAR-001 to UV-VAR-015 |
 | SWE1-030 to SWE1-034 | Function rules | UV-FUN-001 to UV-FUN-007 |
-| SWE1-035 to SWE1-039 | Constant/macro rules | UV-DEF-001 to UV-DEF-007 |
+| SWE1-035 to SWE1-039, SWE1-090 | Constant/macro rules | UV-DEF-001 to UV-DEF-013 |
 | SWE1-040 to SWE1-042 | Type rules | UV-TYP-001 to UV-TYP-007 |
 | SWE1-043 to SWE1-044 | Include guard rules | UV-INC-001 to UV-INC-005 |
 | SWE1-045 to SWE1-050 | Miscellaneous rules | UV-MSC-001 to UV-MSC-007 |
+| SWE1-071 | Whitespace ratio | UV-WSR-001 to UV-WSR-027 |
 | SWE1-049 | Yoda conditions | UV-YOD-001 to UV-YOD-005 |
 | SWE1-051 to SWE1-053 | Sign compatibility | UV-SGN-001 to UV-SGN-004 |
 | SWE1-054 to SWE1-055 | Reserved names | UV-RES-001 to UV-RES-004 |
@@ -352,6 +466,28 @@ Each test class verifies: positive detection, negative non-detection, disabled-r
 | SWE1-007 to SWE1-010 | Dictionary management | UV-DCT-001 to UV-DCT-004 |
 | SWE1-065 to SWE1-067 | Baseline suppression | UV-CLI-008 |
 | SWE1-068 to SWE1-070 | CLI / entry point | UV-CLI-001 to UV-CLI-010 |
+| SWE1-072 to SWE1-073 | Inline suppression comments (`parse_inline_suppressions`, suppression logic) | `test_inline_suppression.py` |
+| SWE1-074 | Auto-fix mode (`apply_fixes`, `unified_diff`) | `test_fix_mode.py` |
+| SWE1-075 | Config wizard and presets (`run_wizard`, `run_preset`) | `test_init_wizard.py` |
+| SWE1-076 | Per-directory config (`resolve_per_dir_config`) | `test_per_dir_config.py` |
+| SWE1-077 | HTML report output (`_violations_to_html`) | `test_html_report.py` |
+| SWE1-078 | Function length (`_check_function_length`) | `test_function_length.py` |
+| SWE1-079 | Function doc header (`_check_function_doc_header`) | `test_function_doc_header.py` |
+| SWE1-080 | Assert density (`_check_assert_density`) | `test_assert_density.py` |
+| SWE1-081 | Null statement comment (`_check_null_statement_comment`) | `test_null_statement_comment.py` |
+| SWE1-082 | Declaration spacing (`_check_declaration_spacing`) | `test_declaration_spacing.py` |
+| SWE1-083 | File length (`_check_file_length`) | `test_file_length.py` |
+| SWE1-084 | Reserved header name (`_check_reserved_header_name`) | `test_reserved_header_name.py` |
+| SWE1-085 | Macro trailing semicolon (`_check_macro_trailing_semicolon`) | `test_macro_trailing_semicolon.py` |
+| SWE1-086 | Macro multistatement wrapper (`_check_macro_multistatement_wrapper`) | `test_macro_multistatement_wrapper.py` |
+| SWE1-087 | Identifier length (`_check_identifier_length`) | `test_identifier_length.py` |
+| SWE1-088 | No single-char identifiers (`_check_no_single_char_identifiers`) | `test_no_single_char_identifiers.py` |
+| SWE1-MISRA-004 | Non-ASCII source characters (`_check_non_ascii_source`) | `test_misra_rules.py` — SWE4-TC-4.1-001 to 4.1-012 |
+| SWE1-089 | Per-file breakdown in `print_summary` | `test_print_summary.py` — UV-SUM-001 to UV-SUM-007 |
+| SWE1-090 | Typedef-alias `constant.case` exemption in `_check_defines` | `test_defines.py` — UV-DEF-008 to UV-DEF-013 |
+| SWE1-091 | misc.constant_comparison (`_check_constant_comparison`) | `test_constant_comparison.py` |
+| SWE1-092 | misc.unsigned_suffix signed-parameter argument exemption | `test_unsigned_suffix_signed_params.py` |
+| SWE1-093 | variable.pointer_prefix auto-fix | `test_pointer_prefix_fix.py` |
 
 ---
 
@@ -359,9 +495,9 @@ Each test class verifies: positive detection, negative non-detection, disabled-r
 
 | Role | Name | Signature / Electronic Approval | Date |
 |---|---|---|---|
-| Author | Claude | Approved | 2026-04-15 |
-| Technical Reviewer | Dermot Murphy | Approved | 2026-04-15 |
-| Quality Assurance | Dermot Murphy | Approved | 2026-04-15 |
-| Approver | Dermot Murphy | Approved | 2026-04-15 |
+| Author | Claude | Approved | 2026-06-27 |
+| Technical Reviewer | Dermot Murphy | Approved | 2026-06-27 |
+| Quality Assurance | Dermot Murphy | Approved | 2026-06-27 |
+| Approver | Dermot Murphy | Approved | 2026-06-27 |
 
 > **Note:** This document is under configuration management (SUP.8). Post-approval changes require a change request (SUP.10) and a new document version.

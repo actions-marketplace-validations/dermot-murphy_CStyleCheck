@@ -1,4 +1,4 @@
-# Software Requirements Specification
+﻿# Software Requirements Specification
 
 *Automotive SPICE® PAM v4.0 | SWE.1 Software Requirements Analysis*
 
@@ -8,11 +8,13 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-SWE1-001 | **Version** | 1.0 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-SWE1-001 | **Version** | 2.6 |
+| **Project** | CStyleCheck | **Date** | 2026-07-01 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | SWE.1 |
+
+> **Note — Reviewer independence (CSC-DEV-002):** The Reviewer and Approver are the same person (Dermot Murphy). This is accepted under deviation record **CSC-DEV-002** (`docs/aspice/CStyleCheck_DEV002_Independent_Review_Deviation.md`) on the basis that CStyleCheck has a single human team member.
 
 ---
 
@@ -20,6 +22,22 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
+| 2.6 | 2026-07-06 | Claude | ASPICE audit — add SWE1-094 to SWE1-099 for v1.6.0 features (startup banner, copyright in --version, block-comment suppression, OS path sep, --summary restructure, fn_start correction, fn-ptr typedef exemption); update SWE1-072 for /* */ form; update SWE1-074 for pointer_prefix fix; update §3.2 cross-refs (SWE2 1.11→1.12, SUP8 1.9→1.10); update RTM — closes #371 |
+| 2.5 | 2026-07-01 | Claude | Add SWE1-091 (misc.constant_comparison), SWE1-092 (unsigned_suffix signed-param exemption), SWE1-093 (variable.pointer_prefix auto-fix); update §3.1 scope to v1.6.0; update RTM — closes #339 #340 #341 |
+| 2.4 | 2026-06-27 | Fix §3.2 cross-refs: cascade update (SWE2 1.9→1.11 + any other stale refs fixed) | Dermot Murphy |
+| 2.3 | 2026-06-27 | Fix §3.2 cross-ref: SYS2 1.9→2.0 | Dermot Murphy |
+| 2.2 | 2026-06-27 | Claude | ASPICE audit — fix §3.2 SWE2 ref 1.8→1.9 and SYS2 ref 1.6→1.9; update Review & Approval dates — closes #315 #323 |
+| 2.1 | 2026-06-26 | Claude | ASPICE audit — fix §3.1 scope text (v1.2.x → v1.5.0) — closes #305 |
+| 2.0 | 2026-06-26 | Claude | Add SWE1-089 (per-file summary #278), SWE1-MISRA-004 (non_ascii_source #279), SWE1-090 (typedef-alias constant.case exemption #272/#244); update RTM |
+| 1.9 | 2026-06-18 | Claude | ASPICE audit #254 — sync referenced-document version citations to current versions |
+| 1.8 | 2026-06-08 | Claude | Add SWE1-078 to SWE1-088 for 11 new rules (issues #221–#232); update RTM |
+| 1.7 | 2026-06-05 | Claude | CSC-AUD-005 corrective action — fix factual errors identified in audit |
+| 1.6 | 2026-06-04 | Claude | Add SWE1-072 to SWE1-076 for five new features (inline suppression, --fix, --init/--preset, per-dir config, HTML output) — issues #188 #189 #190 #193 #192 |
+| 1.5 | 2026-06-04 | Claude | Deep accuracy audit: fix §3.1 version text, update §3.2 referenced doc versions (SWE2 1.2→1.3, SUP8 1.4→1.5) — resolves issue #163 |
+| 1.4 | 2026-06-04 | Claude | Automated accuracy audit: update referenced doc versions in §3.2 — resolves issue #163 |
+| 1.3 | 2026-05-28 | Claude | Add SWE1-071 (whitespace_ratio); fix §4.15 coverage targets to reflect package refactor; update RTM and Appendix A.1; fix §4.15 coverage wording — closes issues #146 #148 |
+| 1.2 | 2026-05-28 | Dermot Murphy | Add CSC-DEV-002 deviation footnote to §1 — closes issue #61 |
+| 1.1 | 2026-05-28 | Claude | Added SWE1-MISRA-001/002/003 requirements for MISRA C:2012/2023 lexical rules (Rule 7.3, 7.1, 4.2); updated §5 traceability matrix |
 | 1.0 | 2026-04-12 | Claude | Initial release |
 
 ---
@@ -28,7 +46,7 @@
 
 ### 3.1 Purpose
 
-This Software Requirements Specification (SRS) refines the system-level requirements from CSC-SYS2-001 into software-specific, implementable requirements for **CStyleCheck v1.0.0**. It provides the direct input to software architectural design (SWE.2) and defines the verification criteria used in SWE.4–SWE.6.
+This Software Requirements Specification (SRS) refines the system-level requirements from CSC-SYS2-001 into software-specific, implementable requirements for **CStyleCheck v1.6.0**. It provides the direct input to software architectural design (SWE.2) and defines the verification criteria used in SWE.4–SWE.6.
 
 This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requirements Analysis**.
 
@@ -36,10 +54,10 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 
 | Document ID | Title | Version |
 |---|---|---|
-| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 1.0 |
-| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.0 |
-| CSC-SWE2-001 | CStyleCheck Software Architecture Description | 1.0 |
-| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.1 |
+| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 2.0 |
+| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.5 |
+| CSC-SWE2-001 | CStyleCheck Software Architecture Description | 1.12 |
+| CSC-SUP8-001 | CStyleCheck Configuration Management Plan | 1.10 |
 | Barr-C:2018 | Barr Group Embedded C Coding Standard | 2018 |
 | ASPICE PAM v4.0 | Automotive SPICE Process Assessment Model | 4.0 |
 
@@ -155,6 +173,11 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 | SWE1-048 | The software shall require the `U`/`UL` unsigned suffix on numeric integer constants when `misc.unsigned_suffix.enabled: true` | Mandatory | Test | SYS-F-020 |
 | SWE1-049 | The `_check_yoda()` method shall enforce Yoda-condition ordering in `==` and `!=` comparisons | Mandatory | Test | SYS-F-020 |
 | SWE1-050 | The software shall enforce block comment spacing rules when `misc.block_comment_spacing.enabled: true` | Mandatory | Test | SYS-F-020 |
+| SWE1-MISRA-001 | The `_check_lowercase_l_suffix()` method shall flag any integer or floating-point literal that uses the lowercase letter `l` as a suffix (MISRA C:2012/2023 Rule 7.3) when `misc.lowercase_l_suffix.enabled: true` | Mandatory | Test | SYS-F-020 |
+| SWE1-MISRA-002 | The `_check_octal_constants()` method shall flag any integer literal that begins with `0` followed by one or more octal digits (MISRA C:2012/2023 Rule 7.1) when `misc.octal_constant.enabled: true` | Mandatory | Test | SYS-F-020 |
+| SWE1-MISRA-003 | The `_check_trigraphs()` method shall flag any occurrence of the nine ISO C trigraph sequences (`??=`, `??(`, `??/`, `??)`, `??'`, `??<`, `??!`, `??>`, `??-`) in source or comment text (MISRA C:2012 Rule 4.2 Advisory; MISRA C:2023 Rule 4.2 Required) when `misc.trigraph.enabled: true` | Mandatory | Test | SYS-F-020 |
+| SWE1-MISRA-004 | The `_check_non_ascii_source()` method shall flag any character whose Unicode code point falls outside the set {0x09 TAB, 0x0A LF, 0x0D CR, 0x20–0x7E printable ASCII} (MISRA C:2012/2023 Rule 4.1) when `misc.non_ascii_source.enabled: true`; when `exempt_string_literals: true` characters inside double-quoted string literals shall be exempt | Mandatory | Test | SYS-F-020 |
+| SWE1-071 | The `_check_whitespace_ratio()` method shall enforce a minimum ratio of blank lines to code lines when `misc.whitespace_ratio.enabled: true`; the file header region and comment-only lines shall be excluded from both counts | Mandatory | Test | SYS-F-020 |
 
 ### 4.10 Rule Engine — Cross-File Sign Compatibility (SS-04/SS-05)
 
@@ -182,7 +205,7 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 | SWE1-060 | SARIF output via `_violations_to_sarif()` shall conform to SARIF 2.1.0 schema with `$schema`, `version`, `runs[].tool`, and `runs[].results` fields populated | Mandatory | Test | SYS-F-029 |
 | SWE1-061 | GitHub Actions annotations shall be emitted via `Violation.github_annotation()` producing `::error file=…,line=…,col=…,title=…::` format | Mandatory | Test | SYS-F-030 |
 | SWE1-062 | The `Tee` class shall mirror all output to the log file path specified by `--log` without modifying stdout content | Mandatory | Test | SYS-F-031 |
-| SWE1-063 | The `print_summary()` function shall print a tabulated summary of violation counts per severity and per file when `--summary` is specified | Mandatory | Test | SYS-F-032 |
+| SWE1-063 | The `print_summary()` function shall print a tabulated summary of violation counts per severity (errors, warnings, info, total), top-10 violated rules by count, and a per-file breakdown; see also SWE1-089 | Mandatory | Test | SYS-F-032 |
 | SWE1-064 | Verbose progress to `stderr` shall overwrite the current terminal line with the directory being scanned when `--verbose` is specified | Mandatory | Test | SYS-F-033 |
 
 ### 4.13 Baseline Suppression (SS-01/SS-05/SS-06)
@@ -201,14 +224,52 @@ This document satisfies **Automotive SPICE® PAM v4.0, SWE.1 — Software Requir
 | SWE1-069 | The `main()` function shall return exit code `0`, `1`, or `2` as defined in SYS-F-037 to SYS-F-039, and the `cstylecheck` entry point defined in `pyproject.toml` shall invoke `main()` | Mandatory | Test | SYS-F-037 to SYS-F-039 |
 | SWE1-070 | The `discover_files()` function shall expand `--include` globs, de-duplicate paths, and apply `--exclude` filters using `_path_matches_exclude()` | Mandatory | Test | SYS-F-004, SYS-F-005 |
 
+### 4.16 New Features — Inline Suppression, Auto-fix, Config Wizard, Per-directory Config, HTML Output
+
+| SW-REQ-ID | Requirement | Priority | Verification | Parent |
+|---|---|---|---|---|
+| SWE1-072 | The `preprocessor.parse_inline_suppressions()` function shall parse `// cstylecheck: disable=rule.id` and `// cstylecheck: enable=rule.id` directives in C source, and equivalently `/* cstylecheck: disable=rule.id */` block-comment form on the same line; directives shall be case-insensitive and shall support comma-separated lists of rule IDs | Mandatory | Test | SYS-F-008 |
+| SWE1-073 | The `parse_inline_suppressions()` function shall support `disable-next-line=rule.id` to suppress the immediately following non-blank, non-comment line; a `disable=rule.id` on the same line as code shall suppress that line only; an unpaired `disable=` shall suppress from that point to end of file | Mandatory | Test | SYS-F-008 |
+| SWE1-074 | The `fixer.py` module shall apply safe mechanical in-place fixes when `--fix` is specified; `--dry-run` shall display a unified diff without writing; `--safe-only` shall restrict fixes to zero-risk substitutions; currently fixable rules: `misc.unsigned_suffix` (`42u` → `42U`), `misc.lowercase_l_suffix` (`100l` → `100L`), and `variable.pointer_prefix` (rename via `_fix_pointer_prefix` — see SWE1-093) | Mandatory | Test | SYS-F-020 |
+| SWE1-075 | The `wizard.py` module shall implement `--init` (interactive Q&A wizard writing `.cstylecheck.yml`) and `--preset barr-c\|minimal\|misra` (write pre-built config without wizard); `--init-output FILE` shall set the output path; `--overwrite` shall allow overwriting an existing file | Mandatory | Test | SYS-F-002 |
+| SWE1-076 | The `config.py resolve_per_dir_config()` function shall walk upward from each source file's directory when `--per-dir-config` is active, deep-merging any `.cstylecheck.yml` found on top of the root config; the nearest config wins; `root: true` in any `.cstylecheck.yml` stops the upward search; results shall be cached per directory | Mandatory | Test | SYS-F-002 |
+| SWE1-077 | The `output.py _violations_to_html()` function shall produce a self-contained HTML report when `--output-format html` is specified; the report shall include inline CSS, summary cards (errors/warnings/info/total/files), and per-file violation tables; when `--log FILE` is provided the HTML shall be written to that file, otherwise to stdout | Mandatory | Test | SYS-F-027 |
+| SWE1-078 | The `_check_function_length()` method shall report `misc.function_length` when a function body (opening `{` to closing `}`, inclusive) exceeds `misc.function_length.max_lines`; when `count_comments: false` blank and comment-only lines shall be excluded from the count | Mandatory | Test | SYS-F-020 |
+| SWE1-079 | The `_check_function_doc_header()` method shall report `misc.function_doc_header` for any non-static function definition not immediately preceded by a Doxygen block comment containing `@brief`; when `require_param: true` each parameter requires a `@param` tag; when `require_return: true` non-void functions require `@return` | Mandatory | Test | SYS-F-020 |
+| SWE1-080 | The `_check_assert_density()` method shall report `misc.assert_density` for any function body with fewer than `min_asserts` `assert()` calls; functions with fewer body lines than `min_function_lines` shall be exempt; functions whose name matches any pattern in `exempt_functions` shall be exempt | Mandatory | Test | SYS-F-020 |
+| SWE1-081 | The `_check_null_statement_comment()` method shall report `misc.null_statement_comment` for any control-flow keyword (`while`, `for`, `if`) immediately followed by `;` and for any standalone `;` on its own line that is not followed by a comment | Mandatory | Test | SYS-F-020 |
+| SWE1-082 | The `_check_declaration_spacing()` method shall report `misc.declaration_spacing` when a block of variable declarations at the start of a function body is not followed by exactly one blank line before the first executable statement | Mandatory | Test | SYS-F-020 |
+| SWE1-083 | The `_check_file_length()` method shall report `misc.file_length` at line 1 when the source file exceeds `misc.file_length.max_lines`; when `count_blank_lines: false` blank lines shall be excluded; when `count_comment_lines: false` comment-only lines shall be excluded | Mandatory | Test | SYS-F-020 |
+| SWE1-084 | The `_check_reserved_header_name()` method shall report `misc.reserved_header_name` when the file under analysis is a header whose base name matches a standard C or POSIX library header, and when a `#include "..."` directive references a name matching a standard header | Mandatory | Test | SYS-F-020 |
+| SWE1-085 | The `_check_macro_trailing_semicolon()` method shall report `macro.trailing_semicolon` for any `#define` whose expansion (after stripping string literals and comments) ends with a `;`; multi-line macros shall be fully assembled before the check | Mandatory | Test | SYS-F-020 |
+| SWE1-086 | The `_check_macro_multistatement_wrapper()` method shall report `macro.multistatement_wrapper` for any function-like `#define` whose expansion contains more than one statement and is not wrapped in `do { ... } while (0)` | Mandatory | Test | SYS-F-020 |
+| SWE1-087 | The `_check_identifier_length()` method shall report `naming.identifier_length` for any declared identifier whose name is shorter than `naming.identifier_length.min_length` or longer than `naming.identifier_length.max_length`; names matching any pattern in `exempt_patterns` shall be exempt | Mandatory | Test | SYS-F-020 |
+| SWE1-088 | The `_check_no_single_char_identifiers()` method shall report `naming.no_single_char_identifiers` for any declared identifier with a single-character name that does not appear in `naming.no_single_char_identifiers.exempt` | Mandatory | Test | SYS-F-020 |
+| SWE1-089 | The `print_summary()` function shall include a per-file breakdown section showing the count of files with errors only, files with warnings (no errors), files with info only, and files with no violations (clean); the section shall be omitted when `files_checked` is zero | Mandatory | Test | SYS-F-032 |
+| SWE1-090 | The `_check_defines()` method shall exempt object-like `#define` names from `constant.case` when the name ends (case-insensitively) with the configured `typedefs.suffix.suffix` value and `typedefs.suffix.enabled: true`; function-like `#define` names shall not be exempted | Mandatory | Test | SYS-F-011 |
+| SWE1-091 | The `_check_constant_comparison()` method shall report `misc.constant_comparison` for any `==` or `!=` operator where both the left-hand token and the right-hand token are recognised as compile-time constants (decimal/hex literals, char literals, `true`/`false`/`TRUE`/`FALSE`/`NULL`/`nullptr`, or ALL\_CAPS identifiers) when `misc.constant_comparison.enabled: true`; comparisons inside `#define` RHS and `return` statements shall be exempt | Mandatory | Test | SYS-F-020 |
+| SWE1-092 | The `_check_misc()` method shall exempt integer literals from `misc.unsigned_suffix` when they appear as arguments at positions corresponding to signed-type parameters (`int8_t`, `int16_t`, `int32_t`, `int64_t`, `int`, `short`, `long`, `char`, and `signed` variants) of functions declared or defined within the same translation unit | Mandatory | Test | SYS-F-020 |
+| SWE1-093 | The `_fix_pointer_prefix()` function in `fixer.py` shall rename a non-compliant pointer parameter or variable to its prefixed form by replacing all word-boundary occurrences of the old name within the enclosing function's signature and body; it shall also rename the parameter in any doxygen `@param`/`\param` comment block immediately preceding the function; the `fix_pointer_prefix_in_header()` function shall apply the same rename to function declarations in the corresponding `.h` file when invoked by the `--fix` CLI mode | Mandatory | Test | SYS-F-020 |
+
+### 4.17 New Features — v1.6.0 Output, Suppression, and Rule Improvements
+
+| SW-REQ-ID | Requirement | Priority | Verification | Parent |
+|---|---|---|---|---|
+| SWE1-094 | The `main()` entry point shall write a one-line startup banner containing the tool name, version string, and copyright notice to `stderr` before processing begins; the banner shall not be written when `--quiet` is set | Mandatory | Test | SYS-F-032 |
+| SWE1-095 | The `--version` flag output shall include both the version string and the copyright notice on separate lines; the copyright notice shall conform to the format `Copyright (C) YYYY Dermot Murphy` | Mandatory | Test | SYS-F-032 |
+| SWE1-096 | The output formatter shall render file paths in violation messages using the OS-native path separator (`os.sep`) so that paths on Windows use backslash and paths on POSIX systems use forward-slash | Mandatory | Test | SYS-F-027 |
+| SWE1-097 | The `print_summary()` function shall print a "Files" section (listing per-file violation counts) **before** the "Results" section (listing per-rule counts); the summary header shall include the tool name, version, and a UTC timestamp; the horizontal separator line shall be dynamically sized to match the longest output line | Mandatory | Test | SYS-F-032 |
+| SWE1-098 | The `_check_functions()` method shall correct the reported line number for a function definition when the opening brace appears on a line later than the function name line (multi-line signature); the violation shall be reported at the line containing the function return type and name, not at the opening brace | Mandatory | Test | SYS-F-015 |
+| SWE1-099 | The `_check_variables()` method shall exempt function-pointer `typedef` names from the `variable.pointer_prefix` rule; a typedef whose base type contains a function-pointer signature (e.g. `typedef void (*UART_CB_T)(void)`) shall not trigger the `variable.pointer_prefix` violation | Mandatory | Test | SYS-F-014 |
+
 ### 4.15 Verification Criteria
 
 The following criteria shall be met by all software requirements above. They are used as the basis for SWE.4 unit verification.
 
 | Criterion | Target | Measurement |
 |---|---|---|
-| Statement coverage | ≥ 90% of `cstylecheck.py` | pytest-cov report |
-| Branch coverage | ≥ 85% of `cstylecheck.py` | pytest-cov report |
+| Statement coverage | ≥ 90% of `src/cstylecheck/` package (long-term target); CI gate ≥ 85% combined | pytest-cov report |
+| Branch coverage | ≥ 85% of `src/cstylecheck/` package (CI gate) | pytest-cov report |
 | MISRA-equivalent naming compliance | Zero `cstylecheck` self-violations | `rules.yml` CI result |
 | All unit test cases | PASS | pytest result across Python 3.10 / 3.11 / 3.12 |
 
@@ -227,11 +288,41 @@ The following criteria shall be met by all software requirements above. They are
 | SWE1-040 to SWE1-042 | Type rules | SYS-F-011 | `Checker._check_typedefs/enums/structs()` | `test_typedefs.py`, `test_enums.py`, `test_structs.py` |
 | SWE1-043 to SWE1-044 | Include guard rules | SYS-F-019 | `Checker._check_include_guard()` | `test_include_guards.py` |
 | SWE1-045 to SWE1-050 | Miscellaneous rules | SYS-F-020 | `Checker._check_misc()`, `_check_yoda()` | `test_misc.py`, `test_yoda_condition.py`, `test_block_comment_spacing.py` |
+| SWE1-071 | Whitespace ratio | SYS-F-020 | `Checker._check_whitespace_ratio()` | `test_whitespace_ratio.py` |
+| SWE1-MISRA-001 to SWE1-MISRA-003 | MISRA C:2012/2023 lexical rules (Rule 7.3, 7.1, 4.2) | SYS-F-020 | `Checker._check_lowercase_l_suffix()`, `_check_octal_constants()`, `_check_trigraphs()` | `test_misra_rules.py` |
+| SWE1-MISRA-004 | MISRA C:2012/2023 Rule 4.1 non-ASCII source characters | SYS-F-020 | `Checker._check_non_ascii_source()` | `test_misra_rules.py` |
 | SWE1-051 to SWE1-053 | Cross-file sign compatibility | SYS-F-021 | `SignChecker` class | `test_sign_compatibility.py` |
 | SWE1-054 to SWE1-056 | Reserved names and spell check | SYS-F-022, F-023 | `Checker._check_reserved_names()`, `_check_spelling()` | `test_reserved_name.py`, `test_spell_check.py` |
 | SWE1-057 to SWE1-064 | Output formatting | SYS-F-027 to F-033 | Output Formatter / `Tee` | `test_cli.py` |
 | SWE1-065 to SWE1-067 | Baseline suppression | SYS-F-034 to F-036 | Baseline Manager | `test_cli.py` |
 | SWE1-068 to SWE1-070 | CLI and entry point | SYS-F-004, F-005, SYS-NF-008 | CLI module / `main()` | `test_cli.py` |
+| SWE1-072 to SWE1-073 | Inline suppression comments | SYS-F-008 | `preprocessor.parse_inline_suppressions()` | `test_inline_suppression.py` |
+| SWE1-074 | Auto-fix mode | SYS-F-020 | `fixer.py` Fixer module | `test_fix_mode.py` |
+| SWE1-075 | Config wizard and presets | SYS-F-002 | `wizard.py` Wizard module | `test_init_wizard.py` |
+| SWE1-076 | Per-directory config | SYS-F-002 | `config.resolve_per_dir_config()` | `test_per_dir_config.py` |
+| SWE1-077 | HTML report output | SYS-F-027 | `output._violations_to_html()` | `test_html_report.py` |
+| SWE1-078 | Function length | SYS-F-020 | `Checker._check_function_length()` | `test_function_length.py` |
+| SWE1-079 | Function doc header | SYS-F-020 | `Checker._check_function_doc_header()` | `test_function_doc_header.py` |
+| SWE1-080 | Assert density | SYS-F-020 | `Checker._check_assert_density()` | `test_assert_density.py` |
+| SWE1-081 | Null statement comment | SYS-F-020 | `Checker._check_null_statement_comment()` | `test_null_statement_comment.py` |
+| SWE1-082 | Declaration spacing | SYS-F-020 | `Checker._check_declaration_spacing()` | `test_declaration_spacing.py` |
+| SWE1-083 | File length | SYS-F-020 | `Checker._check_file_length()` | `test_file_length.py` |
+| SWE1-084 | Reserved header name | SYS-F-020 | `Checker._check_reserved_header_name()` | `test_reserved_header_name.py` |
+| SWE1-085 | Macro trailing semicolon | SYS-F-020 | `Checker._check_macro_trailing_semicolon()` | `test_macro_trailing_semicolon.py` |
+| SWE1-086 | Macro multistatement wrapper | SYS-F-020 | `Checker._check_macro_multistatement_wrapper()` | `test_macro_multistatement_wrapper.py` |
+| SWE1-087 | Identifier length | SYS-F-020 | `Checker._check_identifier_length()` | `test_identifier_length.py` |
+| SWE1-088 | No single-char identifiers | SYS-F-020 | `Checker._check_no_single_char_identifiers()` | `test_no_single_char_identifiers.py` |
+| SWE1-089 | Per-file breakdown in print_summary | SYS-F-032 | `output.print_summary()` | `test_print_summary.py` |
+| SWE1-090 | Typedef-alias constant.case exemption in _check_defines | SYS-F-011 | `Checker._check_defines()` | `test_defines.py` |
+| SWE1-091 | misc.constant_comparison — flag constant-to-constant == / != | SYS-F-020 | `Checker._check_constant_comparison()` | `test_constant_comparison.py` |
+| SWE1-092 | misc.unsigned_suffix signed-parameter argument exemption | SYS-F-020 | `Checker._check_misc()` | `test_unsigned_suffix_signed_params.py` |
+| SWE1-093 | variable.pointer_prefix auto-fix: rename in signature, body, doxygen, header | SYS-F-020 | `fixer._fix_pointer_prefix()`, `fixer.fix_pointer_prefix_in_header()` | `test_pointer_prefix_fix.py` |
+| SWE1-094 | Startup banner to stderr at tool entry | SYS-F-032 | `main()` in `cli.py` | `test_cli.py` |
+| SWE1-095 | Copyright notice in `--version` output | SYS-F-032 | `main()`, `_build_parser()` | `test_cli.py` |
+| SWE1-096 | OS-native path separator in violation output | SYS-F-027 | `Violation.__str__()` / `emit()` | `test_cli.py` |
+| SWE1-097 | `print_summary()` restructure: Files before Results, header, dynamic separator | SYS-F-032 | `output.print_summary()` | `test_print_summary.py` |
+| SWE1-098 | `fn_start` line-number correction for multi-line signatures | SYS-F-015 | `Checker._check_functions()` | `test_functions.py` |
+| SWE1-099 | Function-pointer typedef exemption from `variable.pointer_prefix` | SYS-F-014 | `Checker._check_variables()` | `test_variables.py` |
 
 ---
 
@@ -239,10 +330,10 @@ The following criteria shall be met by all software requirements above. They are
 
 | Role | Name | Signature / Electronic Approval | Date |
 |---|---|---|---|
-| Author | Claude | Approved | 2026-04-15 |
-| Technical Reviewer | Dermot Murphy | Approved | 2026-04-15 |
-| Quality Assurance | Dermot Murphy | Approved | 2026-04-15 |
-| Approver | Dermot Murphy | Approved | 2026-04-15 |
+| Author | Claude | Approved | 2026-07-01 |
+| Technical Reviewer | Dermot Murphy | — | *pending* |
+| Quality Assurance | Dermot Murphy | — | *pending* |
+| Approver | Dermot Murphy | — | *pending* |
 
 > **Note:** This document is under configuration management (SUP.8). Post-approval changes require a change request (SUP.10) and a new document version.
 
@@ -284,6 +375,7 @@ CStyleCheck is a **complementary** tool to cppcheck (used for full MISRA C stati
 | `misc.eof_comment` | `_check_misc()` | — | — | — | §3.1 | `test_eof_comment.py` |
 | `misc.block_comment_spacing` | `_check_misc()` | — | — | — | §3.3 | `test_block_comment_spacing.py` |
 | `spell_check` | `_check_spelling()` | — | — | — | — | `test_spell_check.py` |
+| `misc.whitespace_ratio` | `_check_whitespace_ratio()` | — | — | — | — | `test_whitespace_ratio.py` |
 
 ### A.2 MISRA C Rules Delegated to cppcheck
 

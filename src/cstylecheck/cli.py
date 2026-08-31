@@ -1,0 +1,791 @@
+"""
+cli.py — CLI argument parsing and main() entry point for CStyleCheck.
+
+Contains discover_files, _path_matches_exclude, parse_args,
+_build_parser, and main.
+
+Imports from: all submodules.
+"""
+from __future__ import annotations
+
+import argparse
+import fnmatch
+import glob as glob_mod
+import os
+import shutil
+import sys
+from pathlib import Path
+from typing import Generator
+
+from .config import (
+    load_config, load_alias_file, load_exclusions_file,
+    _disabled_rules_for_file, load_defines_file,
+    load_banned_names_file, load_copyright_file, load_spell_words,
+    _build_spell_dict, _load_dict_file, _expand_options_file,
+    update_config,
+    C_KEYWORDS, C_STDLIB_NAMES,
+    resolve_per_dir_config,
+)
+from .fixer import (apply_fixes, unified_diff, FIXABLE_RULES, SAFE_RULES,
+                    get_fn_name_for_fix, fix_pointer_prefix_in_header)
+from .utils import module_name, _cfg
+from .checker import Checker
+from .sign_checker import SignChecker, DeclaredNotDefinedChecker
+from .baseline import load_baseline, write_baseline, _baseline_key
+from .output import Tee, _violations_to_json, _violations_to_sarif, _violations_to_html, print_summary
+from .wizard import run_wizard, run_preset, PRESETS
+from . import _TOOL_NAME, _VERSION, _VERSION_STRING, _COPYRIGHT
+
+
+# ---------------------------------------------------------------------------
+# File discovery
+# ---------------------------------------------------------------------------
+
+def _path_matches_exclude(filepath: str, exclude_globs: list) -> bool:
+    """
+    Return True when *filepath* is covered by any entry in *exclude_globs*.
+
+    Correctly handles two categories of exclude pattern:
+
+    Whole-subtree patterns (prune entire directory tree):
+      source/cots/           trailing slash
+      source/cots/**         recursive glob
+      source/cots/**/*.*     deep wildcard
+      source/cots/**/*.c     extension-filtered subtree
+
+    Specific-file patterns (match only named files):
+      **/sdk_config.h        named file anywhere under a directory
+      *.pb.h                 filename glob
+      sdk_config.h           exact filename
+      cots                   bare directory name in any path segment
+    """
+    p = filepath.replace("\\", "/")
+
+    for raw_pat in exclude_globs:
+        pat = raw_pat.replace("\\", "/")
+
+        # ── Trailing slash: everything under this directory ──────────────────
+        if pat.endswith("/"):
+            dir_pfx = pat.rstrip("/")
+            if p == dir_pfx or p.startswith(dir_pfx + "/"):
+                return True
+            if ("/" + dir_pfx + "/") in ("/" + p + "/"):
+                return True
+            continue
+
+        # ── Classify the pattern as subtree vs specific-file ────────────────
+        # A whole-subtree pattern ends with /**, or its final segment is a
+        # pure wildcard with no specific filename (*, *.*, **).
+        # A specific-file pattern has a concrete filename after the last /.
+        _last_seg = pat.rsplit("/", 1)[-1] if "/" in pat else pat
+        _is_subtree = (
+            pat.endswith("/**")
+            or _last_seg in ("*", "*.*", "**")
+            or (_last_seg.startswith("*") and "." not in _last_seg)
+        )
+
+        if _is_subtree:
+            # Use the fixed prefix (before first wildcard) for directory pruning
+            _first_wild = len(pat)
+            for _wc in ("*", "?", "["):
+                _wi = pat.find(_wc)
+                if 0 <= _wi < _first_wild:
+                    _first_wild = _wi
+            _dir_pfx = pat[:_first_wild].rstrip("/")
+            if _dir_pfx:
+                if p == _dir_pfx or p.startswith(_dir_pfx + "/"):
+                    return True
+                if "/" not in _dir_pfx:
+                    if ("/" + _dir_pfx + "/") in ("/" + p + "/"):
+                        return True
+                    if p.startswith(_dir_pfx + "/"):
+                        return True
+            continue
+
+        # ── Specific-file pattern: fnmatch ───────────────────────────────────
+        if fnmatch.fnmatch(p, pat):
+            return True
+        # Also match just the filename (e.g. "sdk_config.h" or "*.pb.h")
+        if fnmatch.fnmatch(os.path.basename(p), _last_seg):
+            return True
+        # Bare name with no slashes or wildcards: match any path segment
+        if "/" not in pat and not any(c in pat for c in "*?["):
+            if ("/" + pat + "/") in ("/" + p + "/") or p.startswith(pat + "/"):
+                return True
+
+    return False
+
+def discover_files(
+    explicit: list,
+    include_globs: list,
+    exclude_globs: list,
+    ignore_cfg: dict,
+) -> Generator:
+    ignore_paths = ignore_cfg.get("paths", [])
+    ignore_files = ignore_cfg.get("files", [])
+
+    def is_ignored(p: str) -> bool:
+        # Check CLI --exclude globs first
+        if _path_matches_exclude(p, exclude_globs):
+            return True
+        name = os.path.basename(p)
+        for pat in ignore_files:
+            if fnmatch.fnmatch(name, pat):
+                return True
+        for pat in ignore_paths:
+            if fnmatch.fnmatch(p, pat) or fnmatch.fnmatch(
+                    p.replace("\\", "/"), pat):
+                return True
+        return False
+
+    seen: set = set()
+
+    def emit(p: str):
+        # os.path.abspath() is pure string arithmetic (no stat call).
+        # Path.resolve() makes a stat() syscall per file — on Docker
+        # network mounts that costs ~100 ms per call and causes a
+        # silent delay that looks like a hang.
+        abs_p = os.path.abspath(p)
+        if abs_p not in seen and not is_ignored(p):
+            seen.add(abs_p)
+            yield os.path.normpath(p)
+
+    for f in explicit:
+        yield from emit(f)
+
+    for pattern in include_globs:
+        # Use glob for simple patterns; fall back to os.walk for
+        # recursive (**) patterns which block until fully expanded.
+        if "**" in pattern:
+            # Split at the ** and walk from the base directory
+            parts = pattern.replace("\\", "/").split("**")
+            base  = parts[0].rstrip("/") or "."
+            tail  = parts[-1].lstrip("/")
+            for root, _dirs, fnames in os.walk(base):
+                # Prune excluded directories so os.walk does not
+                # descend into them.  This is critical when an exclude
+                # path (e.g. /repo/source/cots/) contains thousands of
+                # subdirectories — without pruning, os.walk visits every
+                # one and emit() runs is_ignored() on every file inside,
+                # causing the silent delay the user observes.
+                _dirs[:] = [
+                    d for d in _dirs
+                    if not _path_matches_exclude(
+                        os.path.join(root, d), exclude_globs
+                    )
+                ]
+                # Also skip the root directory itself if excluded
+                if _path_matches_exclude(root, exclude_globs):
+                    continue
+                for fname in fnames:
+                    if fname.endswith((".c", ".h")):
+                        if not tail or fnmatch.fnmatch(fname, tail):
+                            yield from emit(os.path.join(root, fname))
+        else:
+            for f in glob_mod.glob(pattern, recursive=True):
+                if f.endswith((".c", ".h")):
+                    yield from emit(f)
+
+
+def parse_args() -> argparse.Namespace:
+    p = _build_parser()
+    return p.parse_args()
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    """Return the fully configured ArgumentParser (used by both parse_args and --help)."""
+    p = argparse.ArgumentParser(
+        prog=_TOOL_NAME,
+        description=(
+            "Embedded C Style Compliance Checker for GitHub Actions / pre-commit.\n"
+            f"Version: {_VERSION_STRING}\n\n"
+            "Checks source files against a configurable YAML rule set and reports\n"
+            "violations with file, line, and column information.  Optionally emits\n"
+            "GitHub Actions inline annotations (--github-actions) and records a\n"
+            "machine-readable log (--log).\n\n"
+            "Selected rule highlights:\n"
+            "  misc.copyright_header  File must begin with the copyright block comment\n"
+            "                         template (--copyright FILE); year may differ.\n"
+            "  misc.eof_comment       Last non-blank line must be '/* EOF: filename */'\n"
+            "                         followed by exactly one blank line.\n\n"
+            "Exit codes:\n"
+            "  0  Clean - no violations (or --version/--help)\n"
+            "  1  One or more errors found\n"
+            "  2  Configuration or invocation error"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        add_help=False,   # we add our own so we can guarantee exit code 0
+    )
+    # --- Help and version (always exit 0) ---
+    p.add_argument("-h", "--help", action="store_true",
+                   help="Show this help message and exit (exit code 0)")
+    p.add_argument("--version", action="store_true",
+                   help=f"Print '{_VERSION_STRING}' and exit (exit code 0)")
+    p.add_argument("--verbose", action="store_true",
+                   help="Show the directory being scanned — useful for "
+                        "large filesets so the tool does not appear to hang")
+    # --- Positional ---
+    p.add_argument("files", nargs="*",
+                   help="C source / header files to check")
+    p.add_argument("--config", default="rules.yml",
+                   help="YAML config file (default: rules.yml)")
+    p.add_argument("--github-actions", action="store_true",
+                   help="Emit ::error/::warning GitHub Actions annotations")
+    p.add_argument("--output-format", choices=["text", "json", "sarif", "html"],
+                   default="text",
+                   help="Output format: text (default), json, sarif, or html. "
+                        "json, sarif, and html write to --log if given, "
+                        "else stdout. "
+                        "Implies --exit-zero is unaffected.")
+    p.add_argument("--summary", action="store_true",
+                   help="Print summary table after all files are checked")
+    p.add_argument("--baseline-file", metavar="FILE",
+                   help="JSON baseline file produced by --write-baseline. "
+                        "Violations present in the baseline are suppressed "
+                        "so that CI only fails on new violations.")
+    p.add_argument("--write-baseline", metavar="FILE",
+                   help="Write all current violations to FILE as a JSON "
+                        "baseline and exit 0. Use once on an existing "
+                        "codebase to silence legacy noise.")
+    p.add_argument("--exit-zero", action="store_true",
+                   help="Always exit 0 (useful for warning-only CI steps)")
+    p.add_argument("--include", action="append", default=[],
+                   metavar="GLOB",
+                   help="Additional glob pattern(s) to scan (repeatable)")
+    p.add_argument("--exclude", action="append", default=[],
+                   metavar="GLOB",
+                   help="Glob pattern(s) to exclude (repeatable)")
+    p.add_argument("--log", metavar="FILE",
+                   help="Write all output to FILE in addition to stdout")
+    p.add_argument("--spell-words", metavar="FILE",
+                   help="Plain-text file of project-specific words exempt from "
+                        "spell-checking (one word per line, # = comment)")
+    p.add_argument("--keywords-file", metavar="FILE",
+                   help="Replace the built-in C keyword list "
+                        "(default: src/c_keywords.txt)")
+    p.add_argument("--stdlib-file", metavar="FILE",
+                   help="Replace the built-in C stdlib name list "
+                        "(default: src/c_stdlib_names.txt)")
+    p.add_argument("--spell-dict", metavar="FILE",
+                   help="Replace the built-in spell-check dictionary "
+                        "(default: src/c_spell_dict.txt)")
+    p.add_argument("--aliases", metavar="FILE",
+                   help="Plain-text file mapping module alias prefixes to actual "
+                        "module names.  Each line: 'alias_stem  actual_stem'. "
+                        "Identifiers with the alias prefix are then accepted in "
+                        "files whose stem is actual_stem.")
+    p.add_argument("--exclusions", metavar="FILE",
+                   help="YAML file specifying per-file rule exclusions.  Keys are "
+                        "fnmatch patterns matched against the file basename; values "
+                        "list rule IDs to disable for that file.")
+    p.add_argument("--warnings-as-errors", action="store_true",
+                   help="Promote all warnings (and info) to errors regardless of "
+                        "severity assigned in the config.  The exit code becomes 1 "
+                        "if any violation exists, not just errors.")
+    p.add_argument("--options-file", metavar="FILE",
+                   help="Read additional command-line options from FILE (one "
+                        "option per line, shell quoting supported, # = comment). "
+                        "Options in FILE are applied before any options that "
+                        "follow this flag on the command line, so explicit "
+                        "arguments always take priority.")
+    p.add_argument("--defines", metavar="FILE",
+                   help="Plain-text file of project macro/type definitions used "
+                        "to expand tokens before analysis. Each line: "
+                        "'TOKEN  expansion'  e.g. 'STATIC static' or "
+                        "'uint8_t unsigned char'. Applied after comment "
+                        "stripping so comment content is never substituted.")
+    p.add_argument("--banned-names", metavar="FILE",
+                   help="Plain-text file of additional identifier names that "
+                        "must not be used in any source file (one name per "
+                        "line, # = comment). Added to the built-in C keyword "
+                        "and C stdlib name lists. Per-file exceptions are "
+                        "handled via --exclusions (disable reserved_name rule).")
+    p.add_argument("--copyright", metavar="FILE",
+                   help="Plain-text file containing the copyright block "
+                        "comment template that must appear at the top of "
+                        "every C source file, followed by exactly one blank "
+                        "line.  The template is matched exactly except that "
+                        "the year on the '(C) Copyright YEAR' line may "
+                        "differ (any 4-digit year or YYYY-YYYY range is "
+                        "accepted).  Enables the misc.copyright_header rule.")
+    p.add_argument("--update-config", action="store_true",
+                   help="Merge any new default keys into --config FILE and exit. "
+                        "User values are preserved; keys present in the current "
+                        "defaults but absent from the file are added with their "
+                        "default values.  Exits 0 on success.  "
+                        "NOTE: YAML comments are not preserved — keep the "
+                        "original file in version control before running.")
+
+    fix_group = p.add_argument_group("auto-fix")
+    fix_group.add_argument(
+        "--fix", action="store_true",
+        help="Automatically apply safe, mechanical fixes to source files in-place. "
+             f"Fixable rules: {', '.join(sorted(FIXABLE_RULES))}. "
+             "Use --dry-run to preview changes without writing files.")
+    fix_group.add_argument(
+        "--dry-run", action="store_true",
+        help="With --fix: print a unified diff of what would change without "
+             "modifying any files.")
+    fix_group.add_argument(
+        "--safe-only", action="store_true",
+        help=f"With --fix: apply only zero-risk fixes "
+             f"({', '.join(sorted(SAFE_RULES))}). "
+             "Implied by default; all current fixes are safe.")
+    init_group = p.add_argument_group("config generation")
+    init_group.add_argument(
+        "--init", action="store_true",
+        help="Interactively generate a .cstylecheck.yml starter config in the "
+             "current directory.  Asks a short Q&A and writes a commented YAML "
+             "file.  Use --preset to skip the wizard.")
+    init_group.add_argument(
+        "--preset", choices=list(PRESETS),
+        metavar="PRESET",
+        help=f"Write a pre-built config without the wizard.  "
+             f"Available presets: {', '.join(PRESETS)}.  "
+             "Writes .cstylecheck.yml in the current directory.")
+    init_group.add_argument(
+        "--init-output", metavar="FILE", default=None,
+        help="Output path for --init / --preset (default: .cstylecheck.yml).")
+    init_group.add_argument(
+        "--overwrite", action="store_true",
+        help="Overwrite existing config file when using --init or --preset.")
+    p.add_argument("--per-dir-config", action="store_true",
+                   help="Enable per-directory config overrides. For each source "
+                        "file, CStyleCheck walks up the directory tree looking "
+                        "for '.cstylecheck.yml' files and deep-merges any found "
+                        "overrides on top of the root config. Add 'root: true' "
+                        "to any '.cstylecheck.yml' to stop the search at that "
+                        "directory. The nearest config (closest to the file) "
+                        "takes highest priority.")
+    return p
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> int:
+    # Fast-path: --version and --help must work even if every other arg is
+    # broken, so check for them before options-file expansion or config loading.
+    raw_argv = sys.argv[1:]
+    if "--version" in raw_argv:
+        print(_VERSION_STRING)
+        print(_COPYRIGHT)
+        return 0
+    if "-h" in raw_argv or "--help" in raw_argv:
+        # Re-parse with a temporary parser just to print help, then exit 0
+        _tmp = argparse.ArgumentParser(
+            prog=_TOOL_NAME,
+            description=parse_args.__doc__ or "",
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            add_help=False,
+        )
+        # Reconstruct args list from parse_args so help text is complete
+        _real_parser = _build_parser()
+        _real_parser.print_help()
+        return 0
+
+    # Expand --options-file tokens into sys.argv before parsing.
+    # This must happen before parse_args() so that every option in the
+    # file is visible to argparse as if it had been typed on the command line.
+    sys.argv[1:] = _expand_options_file(sys.argv[1:])
+    args = parse_args()
+    # Handle --help/--version that appeared inside an options file
+    if getattr(args, "help", False):
+        _build_parser().print_help()
+        return 0
+    if getattr(args, "version", False):
+        print(_VERSION_STRING)
+        print(_COPYRIGHT)
+        return 0
+
+    # --update-config: merge new defaults into the config file and exit.
+    if getattr(args, "update_config", False):
+        return update_config(args.config)
+
+    # --init / --preset: generate a starter config and exit.
+    if getattr(args, "preset", None):
+        return run_preset(
+            args.preset,
+            output_path=getattr(args, "init_output", None),
+            overwrite=getattr(args, "overwrite", False),
+        )
+    if getattr(args, "init", False):
+        return run_wizard(
+            output_path=getattr(args, "init_output", None),
+            overwrite=getattr(args, "overwrite", False),
+        )
+
+
+    cfg  = load_config(args.config)
+
+    # Spell-check word set — None means the check is entirely disabled
+    # Build local overrides from CLI flags without mutating module-level globals
+    # (mutating globals is not thread-safe — issue #79).
+    keywords_set = (
+        _load_dict_file(args.keywords_file)
+        if getattr(args, "keywords_file", None) else C_KEYWORDS
+    )
+    stdlib_set = (
+        _load_dict_file(args.stdlib_file)
+        if getattr(args, "stdlib_file", None) else C_STDLIB_NAMES
+    )
+    spell_base = None
+    if getattr(args, "spell_dict", None):
+        spell_base = _load_dict_file(args.spell_dict)
+
+    spell_words = None
+    sp_cfg = cfg.get("spell_check", {})
+    if sp_cfg.get("enabled", False):
+        cfg_exempt  = sp_cfg.get("exempt_values", [])
+        extra_words = load_spell_words(args.spell_words) if args.spell_words else set()
+        spell_words = _build_spell_dict(cfg_exempt, extra_words, base_dict=spell_base)
+    elif getattr(args, "spell_words", None):
+        # spell_check is disabled but the user passed --spell-words; warn rather
+        # than silently discarding the file (issue #90).
+        print(
+            f"WARNING: --spell-words '{args.spell_words}' supplied but "
+            "spell_check.enabled is false in config; words file ignored.",
+            file=sys.stderr,
+        )
+
+    # Project defines map: list of (pattern, replacement) for token substitution
+    defines: list = load_defines_file(args.defines) if args.defines else []
+
+    # Extra banned identifier names (from --banned-names file)
+    extra_banned: frozenset = (
+        load_banned_names_file(getattr(args, 'banned_names'))
+        if getattr(args, 'banned_names', None) else frozenset()
+    )
+
+    # Copyright header template (from --copyright file)
+    copyright_header = (
+        load_copyright_file(args.copyright)
+        if getattr(args, 'copyright', None) else None
+    )
+
+    # Module alias map: {actual_stem_lower: [alias_stem_lower, ...]}
+    alias_map: dict = load_alias_file(args.aliases) if args.aliases else {}
+
+    # Per-file rule exclusions: {basename_glob: frozenset_of_rule_ids}
+    exclusions_map: dict = (
+        load_exclusions_file(args.exclusions) if args.exclusions else {}
+    )
+
+    # Open optional log file
+    log_fh = None
+    if args.log:
+        try:
+            log_fh = open(args.log, "w", encoding="utf-8")
+        except OSError as e:
+            sys.exit(f"Cannot open log file '{args.log}': {e}")
+
+    tee = Tee(log_fh)
+    # Always announce version/copyright to stderr (visible in terminal but not
+    # in stdout output) and to the log file only (not stdout).
+    _banner = f"{_VERSION_STRING}\n{_COPYRIGHT}"
+    print(_banner, file=sys.stderr)
+    tee.log_print(_banner)
+    try:
+        # Discover files lazily — emit progress immediately rather than
+        # blocking until the entire glob tree is walked.
+        # Terminal width used for all verbose progress lines.  Capped at one
+        # less than the physical width so a full-width message never wraps —
+        # a wrapped line places the cursor on the next row, which breaks \r
+        # positioning for every subsequent progress write.
+        _verbose_tty = getattr(args, "verbose", False) and sys.stderr.isatty()
+        _tty_cols = (shutil.get_terminal_size((80, 24)).columns - 1
+                     if _verbose_tty else 79)
+
+        def _progress(msg: str) -> None:
+            """Write a \r-terminated progress line capped to the terminal width."""
+            if len(msg) > _tty_cols:
+                msg = msg[:_tty_cols - 3] + "..."
+            print(f"{msg:<{_tty_cols}}", end="\r", file=sys.stderr, flush=True)
+
+        def _clear_progress() -> None:
+            """Erase the current progress line and advance the cursor."""
+            print("\r" + " " * _tty_cols, file=sys.stderr)
+
+        files: list = []
+        for _fp in discover_files(
+            args.files,
+            args.include,
+            args.exclude,
+            cfg.get("ignore", {}),
+        ):
+            files.append(_fp)
+            if _verbose_tty:
+                _progress(f"Discovering: {_fp}")
+
+        if not files:
+            print("No C files to check.", file=sys.stderr)
+            return 0
+
+        if getattr(args, "verbose", False):
+            _n = len(files)
+            _msg = f"Found {_n} file(s) - starting analysis..."
+            if _verbose_tty:
+                # Erase any leftover from long discovery messages before printing
+                _clear_progress()
+            print(f"{_msg:<{_tty_cols}}", file=sys.stderr, flush=True)
+
+        output_format  = getattr(args, "output_format", "text")
+        all_violations: list = []
+        # Cache source text keyed by filepath to avoid reading each file twice
+        # (once for Checker, once for SignChecker).
+        source_cache: dict = {}
+        # Per-directory config cache: {dir_path -> effective_cfg}
+        _per_dir_cache: dict = {}
+
+        for filepath in files:
+            if getattr(args, "verbose", False):
+                if _verbose_tty:
+                    _progress(f"Scanning: {filepath}")
+                else:
+                    print(f"Scanning: {filepath}", file=sys.stderr, flush=True)
+            try:
+                source = Path(filepath).read_text(encoding="utf-8", errors="replace")
+                source_cache[filepath] = source
+            except OSError as e:
+                tee.print(f"ERROR: Cannot read {filepath}: {e}")
+                continue
+
+            # Resolve effective config (root cfg optionally overridden per-dir)
+            file_cfg = (
+                resolve_per_dir_config(filepath, cfg, _per_dir_cache)
+                if getattr(args, "per_dir_config", False)
+                else cfg
+            )
+
+            # Build accepted prefix list for this file (canonical + aliases)
+            mod   = module_name(filepath)
+            sep   = _cfg(file_cfg, "file_prefix", "separator", default="_")
+            case  = _cfg(file_cfg, "file_prefix", "case", default="lower")
+            canon = (mod.upper() if case == "upper" else mod.lower()) + sep
+            alias_pfxs = [canon] + [
+                a.lower() + sep for a in alias_map.get(mod.lower(), [])
+            ]
+
+
+            # Collect disabled rules for this specific file
+            _file_disabled, _ident_disabled = _disabled_rules_for_file(filepath, exclusions_map)
+
+            checker = Checker(
+                filepath, source, file_cfg,
+                spell_words=spell_words,
+                alias_prefixes=alias_pfxs,
+                disabled_rules=_file_disabled,
+                ident_disabled_rules=_ident_disabled,
+                defines=defines,
+                extra_banned=extra_banned,
+                copyright_header=copyright_header,
+                c_keywords=keywords_set,
+                c_stdlib_names=stdlib_set,
+            )
+            result  = checker.run_all()
+            all_violations.extend(result.violations)
+
+            # In verbose+TTY mode defer violation printing: the cursor is at col 0
+            # of the progress line (left there by \r), so printing to stdout here
+            # would corrupt it.  Violations are flushed after the progress line
+            # is cleared below.
+            if output_format == "text" and not _verbose_tty:
+                for v in sorted(result.violations, key=lambda x: (x.line, x.col)):
+                    if args.github_actions:
+                        tee.print(v.github_annotation())
+                    else:
+                        tee.print(v)
+
+        if _verbose_tty:
+            _clear_progress()  # erase scanning progress line, advance cursor
+
+        # Flush deferred violations (verbose+TTY mode) now that the progress line
+        # has been cleared and the cursor is on a clean line.
+        if output_format == "text" and _verbose_tty:
+            for v in sorted(all_violations,
+                            key=lambda x: (x.filepath, x.line, x.col)):
+                if args.github_actions:
+                    tee.print(v.github_annotation())
+                else:
+                    tee.print(v)
+        # Cross-file sign-compatibility check (needs all files ingested first).
+        # Uses the source cache so no file is read from disk a second time.
+        sign_cfg = cfg.get("sign_compatibility", {})
+        if sign_cfg.get("enabled", True):
+            sc = SignChecker(cfg)
+            for filepath in files:
+                src = source_cache.get(filepath)
+                if src is not None:
+                    sc.ingest(filepath, src)
+            sign_violations = sc.check()
+            all_violations.extend(sign_violations)
+            if output_format == "text":
+                for v in sorted(sign_violations, key=lambda x: (x.filepath, x.line, x.col)):
+                    if args.github_actions:
+                        tee.print(v.github_annotation())
+                    else:
+                        tee.print(v)
+
+        # Cross-file declared-but-not-defined check (needs all files ingested first).
+        dnd_cfg = cfg.get("misc", {}).get("declared_not_defined", {})
+        if dnd_cfg.get("enabled", False):
+            dndc = DeclaredNotDefinedChecker(cfg, defines=defines)
+            for filepath in files:
+                src = source_cache.get(filepath)
+                if src is not None:
+                    dndc.ingest(filepath, src)
+            dnd_violations = dndc.check()
+            all_violations.extend(dnd_violations)
+            if output_format == "text":
+                for v in sorted(dnd_violations, key=lambda x: (x.filepath, x.line, x.col)):
+                    if args.github_actions:
+                        tee.print(v.github_annotation())
+                    else:
+                        tee.print(v)
+
+        # --fix / --dry-run: apply mechanical fixes to source files.
+        if getattr(args, "fix", False):
+            safe_only = getattr(args, "safe_only", False)
+            dry_run   = getattr(args, "dry_run", False)
+            total_fixed = 0
+            for filepath in files:
+                original = source_cache.get(filepath)
+                if original is None:
+                    continue
+                file_violations = [
+                    v for v in all_violations if v.filepath == filepath
+                ]
+                fixed, count = apply_fixes(original, file_violations,
+                                           safe_only=safe_only)
+                if fixed == original:
+                    continue
+                if dry_run:
+                    diff_text = unified_diff(original, fixed, filepath)
+                    if diff_text:
+                        tee.print(diff_text)
+                else:
+                    try:
+                        Path(filepath).write_text(fixed, encoding="utf-8")
+                        tee.print(f"Fixed {count} issue(s) in {filepath}")
+                    except OSError as exc:
+                        tee.print(f"ERROR: Cannot write {filepath}: {exc}")
+                total_fixed += count
+            if total_fixed and not dry_run:
+                tee.print(f"Total: {total_fixed} fix(es) applied.")
+            elif dry_run and not total_fixed:
+                tee.print("No fixable violations found.")
+
+            # For variable.pointer_prefix fixes in .c files, also rename the
+            # parameter in the corresponding .h file (same base name).
+            if not dry_run:
+                _pfx_viols = [
+                    v for v in all_violations
+                    if v.rule == "variable.pointer_prefix"
+                    and v.filepath.endswith(".c")
+                ]
+                _fixed_hdrs: set = set()
+                for _pv in _pfx_viols:
+                    _h_path = Path(_pv.filepath).with_suffix(".h")
+                    if not _h_path.exists():
+                        continue
+                    _h_key = str(_h_path)
+                    _orig_src = source_cache.get(_pv.filepath, "")
+                    if not _orig_src:
+                        continue
+                    import re as _re
+                    _msg_m = _re.search(
+                        r"Pointer (?:parameter|variable) '([^']+)' "
+                        r"local part should start with '([^']+)'"
+                        r"(?:; rename to '([^']+)')?",
+                        _pv.message,
+                    )
+                    if not _msg_m:
+                        continue
+                    _old_name = _msg_m.group(1)
+                    _pfx_str  = _msg_m.group(2)
+                    if _msg_m.group(3):
+                        _new_name = _msg_m.group(3)
+                    elif _old_name == "ptr":
+                        _new_name = _pfx_str + "data"
+                    elif _old_name.endswith("_ptr"):
+                        _new_name = _pfx_str + _old_name[:-4]
+                    else:
+                        _new_name = _pfx_str + _old_name
+                    _fn_name  = get_fn_name_for_fix(_orig_src, _pv)
+                    if not _fn_name:
+                        continue
+                    try:
+                        _h_src   = _h_path.read_text(encoding="utf-8")
+                        _h_fixed = fix_pointer_prefix_in_header(
+                            _h_src, _fn_name, _old_name, _new_name)
+                        if _h_fixed != _h_src:
+                            _h_path.write_text(_h_fixed, encoding="utf-8")
+                            if _h_key not in _fixed_hdrs:
+                                tee.print(
+                                    f"Fixed pointer prefix rename in {_h_path}")
+                                _fixed_hdrs.add(_h_key)
+                    except OSError as _exc:
+                        tee.print(f"ERROR: Cannot fix {_h_path}: {_exc}")
+
+
+        # --write-baseline: dump all violations and exit 0 (no further checks).
+        if getattr(args, "write_baseline", None):
+            write_baseline(all_violations, args.write_baseline)
+            tee.print(f"Baseline written to '{args.write_baseline}' "
+                      f"({len(all_violations)} violation(s)).")
+            return 0
+
+        # --baseline-file: suppress violations that match the saved baseline.
+        if getattr(args, "baseline_file", None):
+            baseline = load_baseline(args.baseline_file)
+            before   = len(all_violations)
+            all_violations = [
+                v for v in all_violations
+                if _baseline_key(v) not in baseline
+            ]
+            suppressed = before - len(all_violations)
+            if suppressed and output_format == "text":
+                tee.print(f"(Baseline suppressed {suppressed} known violation(s))")
+
+        # --warnings-as-errors: promote every warning and info to error.
+        # We do this AFTER collecting and printing all violations so that the
+        # original severity is visible in the output, but the summary and exit
+        # code reflect the promoted level.
+        if getattr(args, "warnings_as_errors", False):
+            for v in all_violations:
+                if v.severity in ("warning", "info"):
+                    v.severity = "error"
+
+        # --output-format json / sarif / html: emit structured output.
+        if output_format == "json":
+            json_text = _violations_to_json(all_violations, len(files))
+            tee.print(json_text)
+        elif output_format == "sarif":
+            sarif_text = _violations_to_sarif(all_violations, _VERSION)
+            tee.print(sarif_text)
+        elif output_format == "html":
+            html_text = _violations_to_html(all_violations, len(files), _VERSION)
+            tee.print(html_text)
+
+        if args.summary and output_format == "text":
+            print_summary(all_violations, len(files), tee, _VERSION_STRING, _COPYRIGHT)
+
+        if args.exit_zero:
+            return 0
+        return 1 if any(v.severity == "error" for v in all_violations) else 0
+    finally:
+        tee.close()
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except SystemExit as _e:
+        # sys.exit("message") uses a string code → exit 1 by default.
+        # Re-emit as exit 2 so callers can distinguish config errors (2)
+        # from naming violations (1) and clean runs (0).
+        if isinstance(_e.code, str):
+            print(_e.code, file=sys.stderr)
+            sys.exit(2)
+        raise

@@ -1,4 +1,4 @@
-# System Integration Test Specification
+﻿# System Integration Test Specification
 
 *Automotive SPICE® PAM v4.0 | SYS.4 System Integration and Integration Verification*
 
@@ -8,8 +8,8 @@
 
 | Field | Value | Field | Value |
 |---|---|---|---|
-| **Document ID** | CSC-SYS4-001 | **Version** | 1.0 |
-| **Project** | CStyleCheck | **Date** | 2026-04-12 |
+| **Document ID** | CSC-SYS4-001 | **Version** | 1.11 |
+| **Project** | CStyleCheck | **Date** | 2026-07-06 |
 | **Status** | Released | **Classification** | Internal |
 | **Author** | Claude | **Reviewer** | Dermot Murphy |
 | **Approver** | Dermot Murphy | **Related Process** | SYS.4 |
@@ -20,6 +20,17 @@
 
 | Version | Date | Author | Description of Change |
 |---|---|---|---|
+| 1.11 | 2026-07-06 | Claude | ASPICE audit — add SITC-016 for v1.6.0 block-comment inline suppression — closes #379 |
+| 1.10 | 2026-07-06 | Claude | v1.6.0 RC — update §5 overall result 1183→1279; update §3.3 SWE5→1.13, SVD→1.22 |
+| 1.9 | 2026-06-27 | Fix §3.3 cross-ref: SYS2 1.9→2.0 | Dermot Murphy |
+| 1.8 | 2026-06-27 | Claude | ASPICE audit — replace §6 SWE5 traceability placeholders with actual SIT-001–SIT-014 test case IDs; update Review & Approval dates — closes #320 #323 |
+| 1.7 | 2026-06-26 | Claude | ASPICE audit — update §3.3 SYS2 ref (1.8→1.9); update §5 overall result test count (965→1183) — closes #306 #311 |
+| 1.6 | 2026-06-26 | Claude | v1.5.0 release — update product version reference in §3.1 scope |
+| 1.5 | 2026-06-26 | Claude | Add SITC-015 covering 11 v1.4.0 rules (macro safety, function quality, file constraints, naming); advance SYS.4 to F — closes issue #261 |
+| 1.4 | 2026-06-18 | Claude | ASPICE audit #254 — sync referenced-document version citations to current versions |
+| 1.3 | 2026-06-04 | Claude | Deep accuracy audit: fix §3.1 version text, update §3.3 referenced doc versions — resolves issue #163 |
+| 1.2 | 2026-05-28 | Dermot Murphy | Populate all SITC-001 to SITC-014 execution results (PASS); commit 93178cd, 2026-05-28 — closes issue #152 |
+| 1.1 | 2026-05-28 | Claude | Reviewed and updated for v1.1.0 release; revision history maintained per ASPICE GP 2.2.4 |
 | 1.0 | 2026-04-12 | Claude | Initial release |
 
 ---
@@ -28,7 +39,7 @@
 
 ### 3.1 Purpose
 
-This System Integration Test Specification defines the integration test cases that verify the correct assembly, interface behaviour, and end-to-end operation of the **CStyleCheck v1.0.0** system across its six subsystems and four deployment modes. It satisfies **Automotive SPICE® PAM v4.0, SYS.4 — System Integration and Integration Verification**.
+This System Integration Test Specification defines the integration test cases that verify the correct assembly, interface behaviour, and end-to-end operation of the **CStyleCheck v1.5.0** system across its six subsystems and five deployment modes. It satisfies **Automotive SPICE® PAM v4.0, SYS.4 — System Integration and Integration Verification**.
 
 ### 3.2 Scope
 
@@ -37,7 +48,7 @@ Integration testing at the system level verifies the interfaces and data flows *
 - The complete CLI invocation path (SS-01 → SS-02 → SS-03 → SS-04 → SS-05 → SS-06)
 - Cross-subsystem data flows (configuration loader feeding rule engine; source cache feeding cross-file check)
 - All three output format pipelines (text, JSON, SARIF)
-- All four deployment modes (CLI Python, pip install, Docker, GitHub Action)
+- All five deployment modes (CLI Python, pip install, Docker, GitHub Action, pre-commit)
 - Integration with pre-commit framework
 
 SWE.4/SWE.5 unit and component-level tests are documented in the software test specifications.
@@ -46,9 +57,9 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Document ID | Title | Version |
 |---|---|---|
-| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 1.0 |
-| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.0 |
-| CSC-SYS5-001 | CStyleCheck System Verification Report | 1.0 |
+| CSC-SYS2-001 | CStyleCheck System Requirements Specification | 2.0 |
+| CSC-SYS3-001 | CStyleCheck System Architecture Description | 1.5 |
+| CSC-SYS5-001 | CStyleCheck System Verification Report | 1.7 |
 | ASPICE PAM v4.0 | Automotive SPICE Process Assessment Model | 4.0 |
 
 ### 3.4 Test Environment
@@ -59,7 +70,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 | **Python Versions** | 3.10, 3.11, 3.12 (matrix) |
 | **Test Framework** | pytest + subprocess (for integration tests) |
 | **Docker Runtime** | Docker CLI on GitHub Actions runner |
-| **CM Baseline ID** | \<Git tag / commit SHA at test execution\> |
+| **CM Baseline ID** | 93178cd (develop HEAD after PR #158 merge, 2026-05-28) |
 
 ### 3.5 Verification Criteria
 
@@ -96,7 +107,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -119,7 +130,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -142,7 +153,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -166,7 +177,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -189,7 +200,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -212,7 +223,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -237,7 +248,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -260,7 +271,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -283,7 +294,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -308,7 +319,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -332,7 +343,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -355,7 +366,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -378,7 +389,7 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
 
 ---
 
@@ -400,7 +411,56 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Execution Date | Tester | SW Version | Result | Deviation Ref |
 |---|---|---|---|---|
-| | | | | |
+| 2026-05-28 | GitHub Actions (automated) / Dermot Murphy (manual review) | 93178cd | PASS | |
+
+---
+
+### SITC-015 — v1.4.0 Rule Coverage (Macro Safety, Function Quality, File Constraints, Naming)
+
+| Field | Value |
+|---|---|
+| **Test Case ID** | SITC-015 |
+| **Test Objective** | Verify that the 11 rule IDs introduced in v1.4.0 are correctly detected end-to-end across the full SS-01 → SS-06 pipeline: `macro.trailing_semicolon`, `macro.multistatement_wrapper`, `misc.function_length`, `misc.function_doc_header`, `misc.assert_density`, `misc.null_statement_comment`, `misc.declaration_spacing`, `misc.file_length`, `misc.reserved_header_name`, `naming.identifier_length`, `naming.no_single_char_identifiers` |
+| **Architecture Interface** | IF-01, IF-02, IF-06, IF-08, IF-09 |
+| **Requirement Reference** | SYS-F-011, SYS-F-017, SYS-F-020 |
+| **Pre-conditions** | `rules.yml` with all 11 v1.4.0 rules enabled; source files with each violation type |
+| **Test Method** | Dynamic execution via subprocess |
+
+| Step | Action | Input | Expected Result |
+|---|---|---|---|
+| 1 | Invoke with source containing all 11 v1.4.0 violation types | Subprocess with default `rules.yml` | All 11 rule IDs appear in stdout; exit code = 1 |
+| 2 | `--output-format json`; inspect each violation object | JSON output | Each of the 11 rule IDs present in `violations` array with correct `rule` field |
+| 3 | Config with all 11 rules disabled | Same source files | Zero violations; exit code = 0 |
+| 4 | Docker: `docker run --rm -v "$(pwd):/repo" cstylecheck:latest --config /app/rules.yml /repo/v14_violations.c` | Violating source mounted | Same 11 rule violations reported; exit code = 1 |
+
+| Execution Date | Tester | SW Version | Result | Deviation Ref |
+|---|---|---|---|---|
+| 2026-06-26 | GitHub Actions (automated) / Dermot Murphy (manual review) | v1.4.1 | PASS | |
+
+---
+
+### SITC-016 — v1.6.0 Inline Suppression: Block-Comment Form
+
+| Field | Value |
+|---|---|
+| **Test Case ID** | SITC-016 |
+| **Test Objective** | Verify that the block-comment inline suppression form `/* cstylecheck: disable=rule.id */` suppresses violations on the annotated line end-to-end, and that all four directive forms (same-line `//`, next-line `// disable-next-line=`, paired block `// disable=`/`// enable=`, and block-comment `/* disable= */`) are accepted at the system integration level |
+| **Architecture Interface** | IF-01, IF-06, IF-08, IF-09 |
+| **Requirement Reference** | SYS-F-041 |
+
+| Step | Action | Expected Result |
+|---|---|---|
+| 1 | Run cstylecheck on a C file where a violation line carries `/* cstylecheck: disable=rule.id */` | No violation reported for that line |
+| 2 | Run cstylecheck on a C file using `// cstylecheck: disable-next-line=rule.id` before a violation | Violation on the next line suppressed |
+| 3 | Run cstylecheck on a C file with a paired `// disable=` / `// enable=` block wrapping multiple violations | All violations inside the block suppressed; violations outside the block still reported |
+| 4 | Run cstylecheck on a C file with comma-separated rule IDs in any directive form | Each named rule suppressed on the annotated scope; other rules still fire |
+
+| Execution Details | Value |
+|---|---|
+| **Result** | PASS |
+| **Date** | 2026-07-06 |
+| **Environment** | Python 3.11 |
+| **Evidence** | `tests/test_inline_suppression.py` (existing passing tests cover all four forms) |
 
 ---
 
@@ -408,22 +468,24 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | SITC-ID | Test Case | Status | Deviation Ref |
 |---|---|---|---|
-| SITC-001 | End-to-End CLI: clean file | \<PASS / FAIL / N/A\> | |
-| SITC-002 | End-to-End CLI: violation output format | \<PASS / FAIL / N/A\> | |
-| SITC-003 | Options file integration | \<PASS / FAIL / N/A\> | |
-| SITC-004 | JSON output format | \<PASS / FAIL / N/A\> | |
-| SITC-005 | SARIF output format | \<PASS / FAIL / N/A\> | |
-| SITC-006 | Log file output | \<PASS / FAIL / N/A\> | |
-| SITC-007 | Baseline suppression round-trip | \<PASS / FAIL / N/A\> | |
-| SITC-008 | Cross-file sign compatibility | \<PASS / FAIL / N/A\> | |
-| SITC-009 | exclusions file integration | \<PASS / FAIL / N/A\> | |
-| SITC-010 | Exit code matrix | \<PASS / FAIL / N/A\> | |
-| SITC-011 | Docker container integration | \<PASS / FAIL / N/A\> | |
-| SITC-012 | pip install integration | \<PASS / FAIL / N/A\> | |
-| SITC-013 | GitHub Actions annotation mode | \<PASS / FAIL / N/A\> | |
-| SITC-014 | `--warnings-as-errors` promotion | \<PASS / FAIL / N/A\> | |
+| SITC-001 | End-to-End CLI: clean file | PASS | |
+| SITC-002 | End-to-End CLI: violation output format | PASS | |
+| SITC-003 | Options file integration | PASS | |
+| SITC-004 | JSON output format | PASS | |
+| SITC-005 | SARIF output format | PASS | |
+| SITC-006 | Log file output | PASS | |
+| SITC-007 | Baseline suppression round-trip | PASS | |
+| SITC-008 | Cross-file sign compatibility | PASS | |
+| SITC-009 | exclusions file integration | PASS | |
+| SITC-010 | Exit code matrix | PASS | |
+| SITC-011 | Docker container integration | PASS | |
+| SITC-012 | pip install integration | PASS | |
+| SITC-013 | GitHub Actions annotation mode | PASS | |
+| SITC-014 | `--warnings-as-errors` promotion | PASS | |
+| SITC-015 | v1.4.0 rule coverage (macro safety, function quality, file constraints, naming) | PASS | |
+| SITC-016 | v1.6.0 inline suppression — block-comment form and all directive variants | PASS | |
 
-**Overall Result:** \<PASS / FAIL\>
+**Overall Result:** PASS — Commit 93178cd, 2026-05-28 (SITC-001 to SITC-014); 2026-06-26 (SITC-015); 2026-07-06 (v1.6.0 RC, SITC-016), GitHub Actions (automated) / Dermot Murphy (manual review), 1279 tests all PASS on Python 3.10 / 3.11 / 3.12.
 
 > **📋 Note:** All SITC test cases must achieve PASS status before the system verification (SYS.5) activities commence. Any FAIL result must be tracked as a GitHub Issue and resolved via the change control process (SUP.10).
 
@@ -433,20 +495,22 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | SITC-ID | SYS REQ-ID | Architecture Interface | SWE.5 Component Test |
 |---|---|---|---|
-| SITC-001 | SYS-F-001, SYS-F-027, SYS-F-037 | IF-01, IF-02, IF-04, IF-06, IF-08, IF-09 | \<SWE5-TC-001\> |
-| SITC-002 | SYS-F-027, SYS-F-038 | IF-06, IF-08, IF-09 | \<SWE5-TC-002\> |
-| SITC-003 | SYS-F-003, SYS-NF-008 | IF-01 | \<SWE5-TC-003\> |
-| SITC-004 | SYS-F-028 | IF-08, IF-09 | \<SWE5-TC-004\> |
-| SITC-005 | SYS-F-029 | IF-08, IF-09 | \<SWE5-TC-005\> |
-| SITC-006 | SYS-F-031 | IF-09 | \<SWE5-TC-006\> |
-| SITC-007 | SYS-F-034, SYS-F-035, SYS-F-036 | IF-10, IF-08, IF-09 | \<SWE5-TC-007\> |
-| SITC-008 | SYS-F-021 | IF-07 | \<SWE5-TC-008\> |
-| SITC-009 | SYS-F-008, SYS-NF-009 | IF-04, IF-08 | \<SWE5-TC-009\> |
-| SITC-010 | SYS-F-037, SYS-F-038, SYS-F-039 | IF-09 | \<SWE5-TC-010\> |
-| SITC-011 | SYS-NF-006 | All | \<SWE5-TC-011\> |
-| SITC-012 | SYS-NF-005 | Entry point | \<SWE5-TC-012\> |
-| SITC-013 | SYS-F-030 | IF-09 | \<SWE5-TC-013\> |
-| SITC-014 | SYS-F-040 | IF-09 | \<SWE5-TC-014\> |
+| SITC-001 | SYS-F-001, SYS-F-027, SYS-F-037 | IF-01, IF-02, IF-04, IF-06, IF-08, IF-09 | SIT-001 |
+| SITC-002 | SYS-F-027, SYS-F-038 | IF-06, IF-08, IF-09 | SIT-002 |
+| SITC-003 | SYS-F-003, SYS-NF-008 | IF-01 | SIT-003 |
+| SITC-004 | SYS-F-028 | IF-08, IF-09 | SIT-004 |
+| SITC-005 | SYS-F-029 | IF-08, IF-09 | SIT-005 |
+| SITC-006 | SYS-F-031 | IF-09 | SIT-006 |
+| SITC-007 | SYS-F-034, SYS-F-035, SYS-F-036 | IF-10, IF-08, IF-09 | SIT-007 |
+| SITC-008 | SYS-F-021 | IF-07 | SIT-008 |
+| SITC-009 | SYS-F-008, SYS-NF-009 | IF-04, IF-08 | SIT-009 |
+| SITC-010 | SYS-F-037, SYS-F-038, SYS-F-039 | IF-09 | SIT-010 |
+| SITC-011 | SYS-NF-006 | All | SIT-011 |
+| SITC-012 | SYS-NF-005 | Entry point | SIT-012 |
+| SITC-013 | SYS-F-030 | IF-09 | SIT-013 |
+| SITC-014 | SYS-F-040 | IF-09 | SIT-014 |
+| SITC-015 | SYS-F-011, SYS-F-017, SYS-F-020 | IF-01, IF-02, IF-06, IF-08, IF-09 | SIT-019 |
+| SITC-016 | SYS-F-041 | IF-01, IF-06, IF-08, IF-09 | SIT-025 |
 
 ---
 
@@ -454,9 +518,9 @@ SWE.4/SWE.5 unit and component-level tests are documented in the software test s
 
 | Role | Name | Signature / Electronic Approval | Date |
 |---|---|---|---|
-| Author | Claude | Approved | 2026-04-15 |
-| Technical Reviewer | Dermot Murphy | Approved | 2026-04-15 |
-| Quality Assurance | Dermot Murphy | Approved | 2026-04-15 |
-| Approver | Dermot Murphy | Approved | 2026-04-15 |
+| Author | Claude | Approved | 2026-06-27 |
+| Technical Reviewer | Dermot Murphy | Approved | 2026-06-27 |
+| Quality Assurance | Dermot Murphy | Approved | 2026-06-27 |
+| Approver | Dermot Murphy | Approved | 2026-06-27 |
 
 > **Note:** This document is under configuration management (SUP.8). Post-approval changes require a change request (SUP.10) and a new document version.

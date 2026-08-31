@@ -24,12 +24,23 @@ import cstylecheck as _mod  # noqa: E402
 
 Checker   = _mod.Checker
 Violation = _mod.Violation
-load_defines_file       = _mod.load_defines_file
-load_copyright_file     = _mod.load_copyright_file
-_build_spell_dict       = _mod._build_spell_dict
-_BUILTIN_DICT           = _mod._BUILTIN_DICT
-_load_dict_file         = _mod._load_dict_file
-SignChecker             = _mod.SignChecker
+load_defines_file           = _mod.load_defines_file
+load_copyright_file         = _mod.load_copyright_file
+_build_spell_dict           = _mod._build_spell_dict
+_BUILTIN_DICT               = _mod._BUILTIN_DICT
+_load_dict_file             = _mod._load_dict_file
+SignChecker                 = _mod.SignChecker
+DeclaredNotDefinedChecker   = _mod.DeclaredNotDefinedChecker
+parse_inline_suppressions   = _mod.parse_inline_suppressions
+apply_fixes                 = _mod.apply_fixes
+unified_diff                = _mod.unified_diff
+run_wizard                  = _mod.run_wizard
+run_preset                  = _mod.run_preset
+PRESETS                     = _mod.PRESETS
+resolve_per_dir_config      = _mod.resolve_per_dir_config
+_walk_per_dir_configs       = _mod._walk_per_dir_configs
+_PER_DIR_CONFIG_NAME        = _mod._PER_DIR_CONFIG_NAME
+_violations_to_html         = _mod._violations_to_html
 
 
 # ---------------------------------------------------------------------------
@@ -53,15 +64,42 @@ _ALL_OFF: dict = {
         "copyright_header":      {"enabled": False},
         "eof_comment":           {"enabled": False},
         "yoda_conditions":       {"enabled": False},
+        "constant_comparison":   {"enabled": False},
         # New MISRA checks (NR-001/002/003) -- must be off so existing tests
         # are not contaminated by these rules when using cfg_only().
         "lowercase_l_suffix":    {"enabled": False},
         "octal_constant":        {"enabled": False},
         "trigraph":              {"enabled": False},
+        "non_ascii_source":      {"enabled": False},
+        "declared_not_defined":  {"enabled": False},
+        # Comment ratio check (issue #68) -- disabled so existing tests
+        # are not affected by the new per-file comment density check.
+        "comment_ratio":         {"enabled": False},
+        # Whitespace ratio check (issue #143) -- disabled so existing tests
+        # are not affected by the new blank-line density check.
+        "whitespace_ratio":      {"enabled": False},
+        # New rules (issues #221-#232) -- disabled so existing tests are
+        # not contaminated by these checks when using cfg_only().
+        "function_length":            {"enabled": False},
+        "function_doc_header":        {"enabled": False},
+        "assert_density":             {"enabled": False},
+        "declaration_spacing":        {"enabled": False},
+        "file_length":                {"enabled": False},
+        "reserved_header_name":       {"enabled": False},
+        "null_statement_comment":     {"enabled": False},
     },
     "reserved_names":    {"enabled": False},
     "sign_compatibility":{"enabled": False},
     "spell_check":       {"enabled": False},
+    "naming": {
+        "identifier_length":          {"enabled": False},
+        "no_single_char_identifiers": {"enabled": False},
+    },
+    "macros": {
+        "trailing_semicolon":         {"enabled": False},
+        "multistatement_wrapper":     {"enabled": False},
+        "function_like_suffix":       {"enabled": False},
+    },
 }
 
 
@@ -92,7 +130,9 @@ def run(source: str,
         disabled_rules: frozenset = frozenset(),
         defines: list = None,
         extra_banned: frozenset = frozenset(),
-        copyright_header=None) -> list:
+        copyright_header=None,
+        c_keywords: frozenset = None,
+        c_stdlib_names: frozenset = None) -> list:
     """Run checker on *source* and return Violation list."""
     c = Checker(
         filepath, source, cfg,
@@ -102,6 +142,8 @@ def run(source: str,
         defines=defines,
         extra_banned=extra_banned,
         copyright_header=copyright_header,
+        c_keywords=c_keywords,
+        c_stdlib_names=c_stdlib_names,
     )
     return c.run_all().violations
 
